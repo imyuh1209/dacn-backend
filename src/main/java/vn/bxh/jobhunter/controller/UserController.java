@@ -3,6 +3,8 @@ package vn.bxh.jobhunter.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.service.UserService;
+import vn.bxh.jobhunter.service.error.IdInvalidException;
 
 @RestController
 public class UserController {
@@ -23,31 +26,34 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/user")
-    public User createNewUser(@RequestBody User user) {
+    @PostMapping("/users")
+    public ResponseEntity<User> createNewUser(@RequestBody User user) {
         User newUser = this.userService.HandleSaveUser(user);
-        return newUser;
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
-    @PutMapping("/user")
-    public User updateNewUser(@RequestBody User user) {
-        return this.userService.HandleUpdateUser(user);
+    @PutMapping("/users")
+    public ResponseEntity<User> updateNewUser(@RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.HandleUpdateUser(user));
     }
 
-    @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) throws IdInvalidException {
+        if (id > 100) {
+            throw new IdInvalidException("id khong duowjc lonw honw 100");
+        }
         this.userService.HandleDeleteUser(id);
-        return "hao- hungmin";
+        return ResponseEntity.status(HttpStatus.OK).body("hao-huengmin");
     }
 
-    @GetMapping("/user/{id}")
-    public User FetchUserById(@PathVariable Long id) {
-        return this.userService.HandleFetchUserById(id).get();
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> FetchUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(this.userService.HandleFetchUserById(id).get());
     }
 
-    @GetMapping("/user")
-    public List<User> FetchAllUser() {
-        return this.userService.HandleFindAllUsers();
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> FetchAllUser() {
+        return ResponseEntity.ok(this.userService.HandleFindAllUsers());
     }
 
 }
