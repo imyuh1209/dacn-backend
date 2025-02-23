@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,15 +22,18 @@ import vn.bxh.jobhunter.service.error.IdInvalidException;
 public class UserController {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/users")
     public ResponseEntity<User> createNewUser(@RequestBody User user) {
-        User newUser = this.userService.HandleSaveUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        String passwordEncode = passwordEncoder.encode(user.getPassword());
+        user.setPassword(passwordEncode);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.HandleSaveUser(user));
     }
 
     @PutMapping("/users")
@@ -40,7 +44,7 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) throws IdInvalidException {
         if (id > 100) {
-            throw new IdInvalidException("id khong duowjc lonw honw 100");
+            throw new IdInvalidException("id không được lớn hơn 100");
         }
         this.userService.HandleDeleteUser(id);
         return ResponseEntity.status(HttpStatus.OK).body("hao-huengmin");
