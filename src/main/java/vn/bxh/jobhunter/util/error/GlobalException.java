@@ -1,9 +1,11 @@
-package vn.bxh.jobhunter.service.error;
+package vn.bxh.jobhunter.util.error;
 
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,8 +16,9 @@ import vn.bxh.jobhunter.domain.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {
-    @ExceptionHandler(value = IdInvalidException.class)
-    public ResponseEntity<RestResponse<Object>> handleBlogAlreadyExistsException(IdInvalidException idException) {
+    @ExceptionHandler(value = {UsernameNotFoundException.class, BadCredentialsException.class}
+    )
+    public ResponseEntity<RestResponse<Object>> handleBlogAlreadyExistsException(Exception idException) {
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setError(idException.getMessage());
