@@ -12,11 +12,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import vn.bxh.jobhunter.domain.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {
-    @ExceptionHandler(value = {UsernameNotFoundException.class, BadCredentialsException.class}
+    @ExceptionHandler(value = {UsernameNotFoundException.class, BadCredentialsException.class,IdInvalidException.class, MethodArgumentTypeMismatchException.class}
     )
     public ResponseEntity<RestResponse<Object>> handleBlogAlreadyExistsException(Exception idException) {
         RestResponse<Object> res = new RestResponse<Object>();
@@ -26,7 +27,7 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<RestResponse<Object>> validationError(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         final List<FieldError> fieldErrors = result.getFieldErrors();

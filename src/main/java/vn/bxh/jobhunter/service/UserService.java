@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import vn.bxh.jobhunter.domain.dto.ResCreateUserDTO;
 import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.repository.UserRepository;
 
@@ -43,7 +44,26 @@ public class UserService {
         return null;
     }
 
+    public ResCreateUserDTO convertToResCreateUserDTO(User user) {
+        ResCreateUserDTO res = new ResCreateUserDTO();
+        res.setId(user.getId());
+        res.setEmail(user.getEmail());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
+        res.setCreatedAt(user.getCreatedAt());
+        res.setGender(user.getGender());
+        res.setAddress(user.getAddress());
+
+        return res;
+    }
+
+
     public User FindUserByEmail(String email) {
         return this.userRepository.findByEmail(email);
     }
+
+    public boolean existEmail(String email) {
+        return this.userRepository.existsByEmail(email);
+    }
+
 }

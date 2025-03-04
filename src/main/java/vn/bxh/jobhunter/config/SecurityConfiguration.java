@@ -45,10 +45,10 @@ public class SecurityConfiguration {
                         .requestMatchers("/", "/login").permitAll() // Trang chủ không cần login
                         .anyRequest().authenticated())
                 .formLogin(f -> f.disable())
-                .exceptionHandling(
-                        exceptions -> exceptions
-                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
-                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+//                .exceptionHandling(
+//                        exceptions -> exceptions
+//                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
+//                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
