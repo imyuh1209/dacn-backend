@@ -3,10 +3,14 @@ package vn.bxh.jobhunter.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import vn.bxh.jobhunter.domain.dto.Meta;
 import vn.bxh.jobhunter.domain.dto.ResCreateUserDTO;
 import vn.bxh.jobhunter.domain.User;
+import vn.bxh.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.UserRepository;
 
 @Service
@@ -29,8 +33,13 @@ public class UserService {
         return this.userRepository.findById(id);
     }
 
-    public List<User> HandleFindAllUsers() {
-        return this.userRepository.findAll();
+    public ResultPaginationDTO HandleFindAllUsers(Pageable pageable) {
+        Page<User> companyPage = this.userRepository.findAll(pageable);
+        ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
+        Meta meta = new Meta(companyPage.getNumber(), companyPage.getSize(), companyPage.getTotalPages(), companyPage.getTotalElements());
+        resultPaginationDTO.setMeta(meta);
+        resultPaginationDTO.setResult(companyPage.getContent());
+        return resultPaginationDTO;
     }
 
     public User HandleUpdateUser(User user) {
@@ -41,6 +50,7 @@ public class UserService {
             newUser.setPassword(user.getPassword());
             return newUser;
         }
+
         return null;
     }
 

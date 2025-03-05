@@ -1,37 +1,44 @@
 package vn.bxh.jobhunter.domain;
 
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.bxh.jobhunter.util.Constant.GenderEnum;
 import vn.bxh.jobhunter.util.SecurityUtil;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "users")
+@Table(name = "companies")
 @Getter
 @Setter
-public class User {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
+    @NotBlank(message = "Name have not to blank")
     private String name;
-    private String email;
-    private String password;
-    private int age;
-    @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
+
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String description;
+
     private String address;
-    private String refreshToken;
+
+    private String logo;
 
     private Instant createdAt;
-    private Instant updatedAt;
-    private String createdBy;
-    private String updatedBy;
 
+    private Instant updatedAt;
+
+    private String createdBy;
+
+    private String updatedBy;
 
     @PrePersist
     public void handleBeforeCreate() {

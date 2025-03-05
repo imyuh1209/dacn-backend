@@ -2,6 +2,9 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.4.2"
 	id("io.spring.dependency-management") version "1.1.7"
+
+		id("io.freefair.lombok") version "8.12.2.1"
+
 }
 
 group = "vn.bxh"
@@ -18,8 +21,7 @@ repositories {
 }
 
 dependencies {
- 	compileOnly("org.projectlombok:lombok")
-  	annotationProcessor("org.projectlombok:lombok")
+	implementation("com.turkraft.springfilter:jpa:3.1.7")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
