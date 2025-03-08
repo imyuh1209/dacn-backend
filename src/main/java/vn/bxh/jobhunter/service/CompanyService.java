@@ -3,6 +3,7 @@ package vn.bxh.jobhunter.service;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import vn.bxh.jobhunter.domain.Company;
@@ -36,10 +37,10 @@ public class CompanyService {
 
     }
 
-    public ResultPaginationDTO FetchAllCompanies(Pageable pageable){
-        Page<Company> page = this.companyRepository.findAll(pageable);
+    public ResultPaginationDTO FetchAllCompanies(Specification<Company> spec, Pageable pageable){
+        Page<Company> page = this.companyRepository.findAll(spec,pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
-        Meta meta = new Meta(page.getNumber(),page.getSize(), page.getTotalPages(), page.getTotalElements());
+        Meta meta = new Meta(page.getNumber()+1,page.getSize(), page.getTotalPages(), page.getTotalElements());
         resultPaginationDTO.setMeta(meta);
         resultPaginationDTO.setResult(page.getContent());
         return resultPaginationDTO;

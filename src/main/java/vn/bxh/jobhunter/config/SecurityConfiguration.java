@@ -39,10 +39,10 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
-        http
+        HttpSecurity httpSecurity = http
                 .csrf(csrf -> csrf.disable()) // Nếu dùng API không cần CSRF
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/login").permitAll() // Trang chủ không cần login
+                        .requestMatchers("/", "/api/v1/auth/login").permitAll() // Trang chủ không cần login
                         .anyRequest().authenticated())
                 .formLogin(f -> f.disable())
 //                .exceptionHandling(
@@ -61,7 +61,7 @@ public class SecurityConfiguration {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new
                 JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("bxh");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("user");
         JwtAuthenticationConverter jwtAuthenticationConverter = new
                 JwtAuthenticationConverter();
 

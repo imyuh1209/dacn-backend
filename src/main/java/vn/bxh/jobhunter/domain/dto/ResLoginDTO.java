@@ -13,12 +13,8 @@ public class ResLoginDTO {
     @Getter
     @Setter
     public static class UserLogin{
-
-
         private long id;
         private String email;
         private String name;
-
-
     }
 }
