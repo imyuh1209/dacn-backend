@@ -36,12 +36,16 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(status);
 
+        if(body instanceof String){
+            return body;
+        }
+
         if (status >= 400) {
             return body;
         } else {
             res.setData(body);
             ApiMessage  apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
-            res.setMessage(apiMessage);
+            res.setMessage(apiMessage==null?"":apiMessage.value());
         }
         return res;
     }

@@ -8,6 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -17,6 +19,7 @@ import vn.bxh.jobhunter.domain.dto.ResLoginDTO;
 import vn.bxh.jobhunter.service.UserService;
 import vn.bxh.jobhunter.util.SecurityUtil;
 import vn.bxh.jobhunter.util.anotation.ApiMessage;
+import vn.bxh.jobhunter.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -47,7 +50,7 @@ public class AuthController {
         userLogin.setName(userDB.getName());
         userLogin.setEmail(userDB.getEmail());
         //
-        String access_token = this.securityUtil.createAccessToken(authentication,userLogin);
+        String access_token = this.securityUtil.createAccessToken(authentication.getName(),userLogin);
 
         ResLoginDTO resLoginDTO = new ResLoginDTO();
         resLoginDTO.setUser(userLogin);
@@ -65,7 +68,7 @@ public class AuthController {
 
     @GetMapping("/auth/account")
     @ApiMessage("Fetch Account")
-    public ResponseEntity<ResLoginDTO.UserLogin> getAccount(){
+    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount(){
         String email = SecurityUtil.getCurrentUserLogin().isPresent()? SecurityUtil.getCurrentUserLogin().get():"";
         User userDB = this.userService.FindUserByEmail(email);
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
@@ -75,6 +78,60 @@ public class AuthController {
             userLogin.setName(userDB.getName());
             userLogin.setEmail(userDB.getEmail());
         }
-        return ResponseEntity.ok(userLogin);
+        ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
+        userGetAccount.setUser(userLogin);
+        return ResponseEntity.ok(userGetAccount);
     }
+
+    @GetMapping("/auth/refresh")
+    @ApiMessage("Get user by refresh token")
+    public ResponseEntity<ResLoginDTO> getRefreshToken(@CookieValue(name="refresh_token") String refresh_token){
+        Jwt decodedToken = this.securityUtil.checkValidRefreshToken(refresh_token);
+        String email = decodedToken.getSubject();
+        User userDB = this.userService.FindByEmailAndRefreshToken(email,refresh_token);
+        if(userDB == null){
+            throw new IdInvalidException("User not found by token and email");
+        }
+
+        ResLoginDTO.UserLogin  userLogin = new ResLoginDTO.UserLogin();
+        userLogin.setId(userDB.getId());
+        userLogin.setName(userDB.getName());
+        userLogin.setEmail(userDB.getEmail());
+        //
+        String access_token = this.securityUtil.createAccessToken(email,userLogin);
+
+        ResLoginDTO resLoginDTO = new ResLoginDTO();
+        resLoginDTO.setUser(userLogin);
+        resLoginDTO.setAccessToken(access_token);
+        String new_refresh_token = this.securityUtil.createRefreshToken(email,resLoginDTO);
+        this.userService.HandleSetFreshToken(email, new_refresh_token);
+        ResponseCookie springCookie = ResponseCookie.from("refresh_token", new_refresh_token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(RefreshTokenExpiration)
+                .build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, springCookie.toString()).body(resLoginDTO);
+    }
+
+    @PostMapping("/auth/logout")
+    public ResponseEntity<Void> logoutOut(){
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        String email = authentication.getName();
+        this.userService.HandleSetFreshToken(email,null);
+        ResponseCookie deleteSpringCookie = ResponseCookie
+                .from("refresh_token", null)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.SET_COOKIE, deleteSpringCookie.toString())
+                .build();
+    }
+
+
 }

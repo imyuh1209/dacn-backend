@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,7 @@ import vn.bxh.jobhunter.util.anotation.ApiMessage;
 import vn.bxh.jobhunter.util.error.IdInvalidException;
 
 @RestController
+@RequestMapping("/api/v1")
 public class UserController {
 
     private final UserService userService;
@@ -77,7 +80,6 @@ public class UserController {
     @GetMapping("/users")
     @ApiMessage("Fetch all users")
     public ResponseEntity<ResultPaginationDTO> FetchAllUser(@Filter Specification<User> spec, Pageable page) {
-
         return ResponseEntity.ok(this.userService.HandleFindAllUsers(spec, page));
     }
 

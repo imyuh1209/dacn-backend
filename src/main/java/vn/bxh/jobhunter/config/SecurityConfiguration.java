@@ -2,6 +2,7 @@ package vn.bxh.jobhunter.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,9 @@ public class SecurityConfiguration {
     private String jwtKey;
 
 
+
+
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,8 +45,9 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         HttpSecurity httpSecurity = http
                 .csrf(csrf -> csrf.disable()) // Nếu dùng API không cần CSRF
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/api/v1/auth/login").permitAll() // Trang chủ không cần login
+                        .requestMatchers("/users", "/api/v1/auth/login", "/api/v1/auth/refresh","/api/v1/auth/refresh2").permitAll() // Trang chủ không cần login
                         .anyRequest().authenticated())
                 .formLogin(f -> f.disable())
 //                .exceptionHandling(
@@ -83,7 +88,7 @@ public class SecurityConfiguration {
         };
     }
 
-    private SecretKey getSecretKey() {
+    public SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtKey).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
     }

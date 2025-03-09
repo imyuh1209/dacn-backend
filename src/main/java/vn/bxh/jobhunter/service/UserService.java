@@ -36,6 +36,7 @@ public class UserService {
         return this.userRepository.findById(id);
     }
 
+
     public ResultPaginationDTO HandleFindAllUsers(Specification<User> spec, Pageable pageable) {
         Page<User> usePage = this.userRepository.findAll(spec,pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
@@ -73,10 +74,9 @@ public class UserService {
         User user = this.FindUserByEmail(email);
         if(user!=null){
             user.setRefreshToken(refresh_token);
-            this.HandleSaveUser(user);
+            return this.HandleSaveUser(user);
         }
-        return user;
-
+        return null;
     }
 
     public ResCreateUserDTO convertToResCreateUserDTO(User user) {
@@ -114,5 +114,7 @@ public class UserService {
         return this.userRepository.existsByEmail(email);
     }
 
-
+    public User FindByEmailAndRefreshToken(String email,String token){
+        return this.userRepository.findByEmailAndRefreshToken(email, token);
+    }
 }
