@@ -9,9 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import vn.bxh.jobhunter.domain.RestResponse;
+import vn.bxh.jobhunter.domain.response.RestResponse;
 
 import java.io.IOException;
 

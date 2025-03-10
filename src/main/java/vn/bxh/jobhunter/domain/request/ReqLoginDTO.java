@@ -1,14 +1,14 @@
-package vn.bxh.jobhunter.domain.dto;
+package vn.bxh.jobhunter.domain.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class LoginDTO {
+public class ReqLoginDTO {
     @NotBlank(message = "username have not empty!")
     private String username;
     @NotBlank(message = "password have not empty!")
     private String password;
 
-    public LoginDTO(String username, String password) {
+    public ReqLoginDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }

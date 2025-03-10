@@ -1,4 +1,4 @@
-package vn.bxh.jobhunter.domain.dto;
+package vn.bxh.jobhunter.domain.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,15 +10,14 @@ import java.time.Instant;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class ResUserDTO {
+public class ResCreateUserDTO {
     private long id;
-    private String email;
     private String name;
+    private String email;
     private GenderEnum gender;
     private String address;
     private int age;
-    private Instant updatedAt;
     private Instant createdAt;
+    private ResCompanyDTO company;
 }
+

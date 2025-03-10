@@ -31,6 +31,9 @@ public class User {
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 
 
     @PrePersist

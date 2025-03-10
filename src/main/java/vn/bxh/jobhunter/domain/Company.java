@@ -10,6 +10,7 @@ import lombok.Setter;
 import vn.bxh.jobhunter.util.SecurityUtil;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "companies")
@@ -39,6 +40,9 @@ public class Company {
     private String createdBy;
 
     private String updatedBy;
+
+    @OneToMany( mappedBy = "company" ,cascade = CascadeType.ALL)
+    List<User> users;
 
     @PrePersist
     public void handleBeforeCreate() {

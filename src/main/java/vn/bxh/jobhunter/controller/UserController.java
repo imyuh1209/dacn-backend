@@ -1,23 +1,19 @@
 package vn.bxh.jobhunter.controller;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.turkraft.springfilter.boot.Filter;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import vn.bxh.jobhunter.domain.User;
-import vn.bxh.jobhunter.domain.dto.ResCreateUserDTO;
-import vn.bxh.jobhunter.domain.dto.ResUserDTO;
-import vn.bxh.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.bxh.jobhunter.domain.response.ResCreateUserDTO;
+import vn.bxh.jobhunter.domain.response.ResUserDTO;
+import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.UserRepository;
 import vn.bxh.jobhunter.service.UserService;
 import vn.bxh.jobhunter.util.anotation.ApiMessage;
@@ -38,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User user) {
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@RequestBody User user) {
 
         boolean existsEmail = this.userService.existEmail(user.getEmail());
         if (existsEmail == true) {
@@ -51,11 +47,8 @@ public class UserController {
 
     @PutMapping("/users")
     public ResponseEntity<ResUserDTO> updateNewUser(@RequestBody User user) {
-        Optional<User> userUpdate = this.userRepository.findById(user.getId());
-        if(!userUpdate.isPresent()){
-            throw new IdInvalidException("User not valid!");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(userUpdate.get()));
+        User user1 = this.userService.HandleUpdateUser(user);
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(user1));
     }
 
     @DeleteMapping("/users/{id}")
@@ -69,12 +62,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<ResCreateUserDTO> FetchUserById(@PathVariable Long id) {
+    public ResponseEntity<ResUserDTO> FetchUserById(@PathVariable Long id) {
         Optional<User> user = this.userRepository.findById(id);
         if(!user.isPresent()){
             throw new IdInvalidException("Id not exists!");
         }
-        return ResponseEntity.ok(this.userService.convertToResCreateUserDTO(user.get()));
+        return ResponseEntity.ok(this.userService.convertToResUserDTO(user.get()));
     }
 
     @GetMapping("/users")

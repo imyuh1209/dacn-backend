@@ -1,4 +1,4 @@
-package vn.bxh.jobhunter.service;
+package vn.bxh.jobhunter.config;
 
 import java.util.Collections;
 
@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import vn.bxh.jobhunter.service.UserService;
 
 @Component("userDetailsService")
 public class UserDetailCustom implements UserDetailsService {

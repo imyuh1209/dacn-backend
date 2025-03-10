@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import vn.bxh.jobhunter.domain.Company;
-import vn.bxh.jobhunter.domain.dto.Meta;
-import vn.bxh.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.bxh.jobhunter.domain.User;
+import vn.bxh.jobhunter.domain.response.ResCompanyDTO;
+import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.CompanyRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CompanyService {
     private final CompanyRepository companyRepository;
+    private final UserService userService;
 
     public Company HandleSaveCompany(Company company){
         return this.companyRepository.save(company);
@@ -40,11 +42,23 @@ public class CompanyService {
     public ResultPaginationDTO FetchAllCompanies(Specification<Company> spec, Pageable pageable){
         Page<Company> page = this.companyRepository.findAll(spec,pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
-        Meta meta = new Meta(page.getNumber()+1,page.getSize(), page.getTotalPages(), page.getTotalElements());
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta(page.getNumber()+1,page.getSize(), page.getTotalPages(), page.getTotalElements());
         resultPaginationDTO.setMeta(meta);
-        resultPaginationDTO.setResult(page.getContent());
+        List<ResCompanyDTO> resList = new ArrayList<>();
+        List<Company> companyList = page.getContent();
+        for (Company company : companyList) {
+            ResCompanyDTO res = new ResCompanyDTO();
+            res.setId(company.getId());
+            res.setName(company.getName());
+            res.setDescription(company.getDescription());
+            res.setAddress(company.getAddress());
+            resList.add(res);
+        }
+        resultPaginationDTO.setResult(resList);
         return resultPaginationDTO;
     }
+
+
 
     public void deleteById(Long id){
         this.companyRepository.deleteById(id);

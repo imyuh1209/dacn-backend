@@ -3,21 +3,14 @@ package vn.bxh.jobhunter.controller;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.bxh.jobhunter.domain.Company;
-import vn.bxh.jobhunter.domain.dto.Meta;
-import vn.bxh.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.service.CompanyService;
-import vn.bxh.jobhunter.util.error.IdInvalidException;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")

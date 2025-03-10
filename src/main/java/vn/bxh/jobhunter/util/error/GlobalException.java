@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import vn.bxh.jobhunter.domain.RestResponse;
+import vn.bxh.jobhunter.domain.response.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {
