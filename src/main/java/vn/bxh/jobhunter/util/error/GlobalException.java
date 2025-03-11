@@ -17,7 +17,10 @@ import vn.bxh.jobhunter.domain.response.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {
-    @ExceptionHandler(value = {UsernameNotFoundException.class, BadCredentialsException.class,IdInvalidException.class, MethodArgumentTypeMismatchException.class}
+    @ExceptionHandler(value = {UsernameNotFoundException.class,
+            BadCredentialsException.class,
+            IdInvalidException.class,
+            MethodArgumentTypeMismatchException.class}
     )
     public ResponseEntity<RestResponse<Object>> handleBlogAlreadyExistsException(Exception idException) {
         RestResponse<Object> res = new RestResponse<Object>();

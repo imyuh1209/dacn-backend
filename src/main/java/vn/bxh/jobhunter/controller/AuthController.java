@@ -42,6 +42,9 @@ public class AuthController {
                 reqLoginDTO.getUsername(), reqLoginDTO.getPassword());
         // xác thực người dùng => cần viết hàm loadUserByUsername
         User userDB = this.userService.FindUserByEmail(reqLoginDTO.getUsername());
+        if(userDB == null){
+            throw new IdInvalidException("Email is not valid!");
+        }
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);//set thong tin ngươi dùng
         ResLoginDTO.UserLogin  userLogin = new ResLoginDTO.UserLogin();

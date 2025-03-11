@@ -47,7 +47,9 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable()) // Nếu dùng API không cần CSRF
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/users", "/api/v1/auth/login", "/api/v1/auth/refresh","/api/v1/auth/refresh2").permitAll() // Trang chủ không cần login
+                        .requestMatchers("/users", "/api/v1/auth/login",
+                                "/api/v1/auth/refresh","/api/v1/auth/refresh2","/storage/**"
+                        ).permitAll() // Trang chủ không cần login
                         .anyRequest().authenticated())
                 .formLogin(f -> f.disable())
 //                .exceptionHandling(
