@@ -29,6 +29,15 @@ public class GlobalException {
         res.setMessage("IdInvalidException");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
+    @ExceptionHandler(value = {FileInvalidException.class}
+    )
+    public ResponseEntity<RestResponse<Object>> handleFileException(Exception idException) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setError(idException.getMessage());
+        res.setMessage("File Invalid Exception");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<RestResponse<Object>> validationError(MethodArgumentNotValidException ex) {

@@ -8,11 +8,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class StaticResourcesWebConfiguration
         implements WebMvcConfigurer {
-    @Value("${hao.upload-file.base-path}")
-    private String basePath;
+    @Value("${hao.upload-file.base-uri}")
+    private String baseUri;
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/storage/**")
-                .addResourceLocations(basePath);
+                .addResourceLocations(baseUri);
     }
 }

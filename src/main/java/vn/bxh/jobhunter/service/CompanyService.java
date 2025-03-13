@@ -10,6 +10,7 @@ import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.domain.response.ResCompanyDTO;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.CompanyRepository;
+import vn.bxh.jobhunter.util.error.IdInvalidException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,15 @@ public class CompanyService {
 
     public Company HandleSaveCompany(Company company){
         return this.companyRepository.save(company);
+    }
+
+    public Company FetchCompany(long id){
+        Optional<Company> companyOptional = this.companyRepository.findById(id);
+        if(companyOptional.isPresent()){
+            return companyOptional.get();
+        }else{
+            throw new IdInvalidException("Id dose not exist!");
+        }
     }
 
     public Company HandleUpdateCompany(Company company){

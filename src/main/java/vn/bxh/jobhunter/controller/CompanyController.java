@@ -29,6 +29,11 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.companyService.FetchAllCompanies(spec, pageable));
     }
 
+    @GetMapping("/companies/{id}")
+    public ResponseEntity<Company> getCompany(@PathVariable long id){
+        return ResponseEntity.ok(this.companyService.FetchCompany(id));
+    }
+
     @PutMapping("/companies")
     public ResponseEntity<Company> getListCompanies(@Valid @RequestBody Company company){
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.companyService.HandleUpdateCompany(company));

@@ -26,9 +26,9 @@ public class JobService {
         Optional<Job> jobOptional = this.jobRepository.findById(id);
         if(jobOptional.isPresent()){
             Job jobDelete = jobOptional.get();
-//            for (Skill skill : jobDelete.getSkills()==null? new ArrayList<Skill>():jobDelete.getSkills()){
-//                jobDelete.getSkills().remove(skill);
-//            }
+            for (Skill skill : jobDelete.getSkills()==null? new ArrayList<Skill>():jobDelete.getSkills()){
+                jobDelete.getSkills().remove(skill);
+            }
             this.jobRepository.delete(jobDelete);
         }else{
             throw new IdInvalidException("Job dose not exist!");

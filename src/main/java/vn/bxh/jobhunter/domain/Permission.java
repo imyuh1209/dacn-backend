@@ -3,54 +3,44 @@ package vn.bxh.jobhunter.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import vn.bxh.jobhunter.util.Constant.LevelEnum;
 import vn.bxh.jobhunter.util.SecurityUtil;
 
 import java.time.Instant;
 import java.util.List;
 
-@Entity
-@Table(name = "jobs")
-@Getter
 @Setter
-public class Job {
+@Getter
+@Entity
+@Table(name = "permissions")
+public class Permission {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotBlank(message = "name không được để trống")
     private String name;
-    private String location;
-    private double salary;
-    private int quantity;
-    @Enumerated(EnumType.STRING)
-    private LevelEnum level;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String description;
+    @NotBlank(message = "apiPath không được để trống")
+    private String apiPath;
 
-    private Instant startDate;
-    private Instant endDate;
-    private boolean active;
+    @NotBlank(message = "method không được để trống")
+    private String method;
+
+    @NotBlank(message = "module không được để trống")
+    private String module;
+
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "company_id")
-    private Company company;
-    @JsonIgnore
-    @OneToMany( mappedBy = "job")
-    List<Resume> resumes;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "jobs" })
-    @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"),
-            inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    private List<Skill> skills;
-
+   @ManyToMany(fetch = FetchType.LAZY, mappedBy = "permissions")
+   @JsonIgnore
+   private List<Role> roles;
 
     @PrePersist
     public void handleBeforeCreate() {
