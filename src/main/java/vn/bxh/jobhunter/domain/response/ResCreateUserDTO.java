@@ -19,5 +19,9 @@ public class ResCreateUserDTO {
     private int age;
     private Instant createdAt;
     private ResCompanyDTO company;
+
+    public static class UserRole{
+
+    }
 }
 

@@ -44,7 +44,14 @@ public class RoleService {
         if(this.roleRepository.existsByIdAndName(role.getId(), role.getName())){
             Role roleDB = this.roleRepository.findById(role.getId()).get();
             roleDB.setActive(role.isActive());
-            roleDB.setPermissions(role.getPermissions());
+            if(role.getPermissions()!=null){
+                List<Permission> listPer = new ArrayList<>();
+                for (Permission per : role.getPermissions()){
+                    Optional<Permission> permission = this.permissionRepository.findById(per.getId());
+                    permission.ifPresent(listPer::add);// add to list
+                }
+                roleDB.setPermissions(listPer);
+            }
             roleDB.setDescription(role.getDescription());
             roleDB.setName(role.getName());
             return this.roleRepository.save(roleDB);

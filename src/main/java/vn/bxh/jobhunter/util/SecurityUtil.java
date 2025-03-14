@@ -34,32 +34,38 @@ public class SecurityUtil {
         this.jwtEncoder = jwtEncoder;
     }
 
-    public String createAccessToken(String email,ResLoginDTO.UserLogin userLogin) {
+    public String createAccessToken(String email,ResLoginDTO userLogin) {
         Instant now = Instant.now();
         Instant validity = now.plus(this.AccessTokenExpiration, ChronoUnit.SECONDS);
-
+        ResLoginDTO.UserInsideToken userToken = new ResLoginDTO.UserInsideToken();
+        userToken.setId(userLogin.getUser().getId());
+        userToken.setName(userLogin.getUser().getName());
+        userToken.setEmail(userLogin.getUser().getEmail());
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(validity)
                 .subject(email)
-                .claim("user", userLogin)
+                .claim("user", userToken)
                 .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,
                 claims)).getTokenValue();
     }
 
-    public String createRefreshToken(String email, ResLoginDTO loginDTO) {
+    public String createRefreshToken(String email, ResLoginDTO userLogin) {
         Instant now = Instant.now();
         Instant validity = now.plus(this.RefreshTokenExpiration, ChronoUnit.SECONDS);
-
+        ResLoginDTO.UserInsideToken userToken = new ResLoginDTO.UserInsideToken();
+        userToken.setId(userLogin.getUser().getId());
+        userToken.setName(userLogin.getUser().getName());
+        userToken.setEmail(userLogin.getUser().getEmail());
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(validity)
                 .subject(email)
-                .claim("bxh", loginDTO.getUser())
+                .claim("bxh", userToken)
                 .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,

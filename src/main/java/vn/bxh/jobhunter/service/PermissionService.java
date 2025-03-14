@@ -18,6 +18,7 @@ public class PermissionService {
         Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
         if(permissionOptional.isPresent()){
             Permission permission = permissionOptional.get();
+
             for (Role role : permission.getRoles()) {
                 role.getPermissions().remove(permission);
             }

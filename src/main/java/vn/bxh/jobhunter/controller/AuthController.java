@@ -51,11 +51,12 @@ public class AuthController {
         userLogin.setId(userDB.getId());
         userLogin.setName(userDB.getName());
         userLogin.setEmail(userDB.getEmail());
+        userLogin.setRole(userDB.getRole());
         //
-        String access_token = this.securityUtil.createAccessToken(authentication.getName(),userLogin);
 
         ResLoginDTO resLoginDTO = new ResLoginDTO();
         resLoginDTO.setUser(userLogin);
+        String access_token = this.securityUtil.createAccessToken(authentication.getName(),resLoginDTO);
         resLoginDTO.setAccessToken(access_token);
         String refresh_token = this.securityUtil.createRefreshToken(reqLoginDTO.getUsername(),resLoginDTO);
         this.userService.HandleSetFreshToken(reqLoginDTO.getUsername(), refresh_token);
@@ -79,6 +80,7 @@ public class AuthController {
             userLogin.setId(userDB.getId());
             userLogin.setName(userDB.getName());
             userLogin.setEmail(userDB.getEmail());
+            userLogin.setRole(userDB.getRole());
         }
         ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
         userGetAccount.setUser(userLogin);
@@ -99,11 +101,14 @@ public class AuthController {
         userLogin.setId(userDB.getId());
         userLogin.setName(userDB.getName());
         userLogin.setEmail(userDB.getEmail());
+        userLogin.setRole(userDB.getRole());
+
         //
-        String access_token = this.securityUtil.createAccessToken(email,userLogin);
+
 
         ResLoginDTO resLoginDTO = new ResLoginDTO();
         resLoginDTO.setUser(userLogin);
+        String access_token = this.securityUtil.createAccessToken(email,resLoginDTO);
         resLoginDTO.setAccessToken(access_token);
         String new_refresh_token = this.securityUtil.createRefreshToken(email,resLoginDTO);
         this.userService.HandleSetFreshToken(email, new_refresh_token);

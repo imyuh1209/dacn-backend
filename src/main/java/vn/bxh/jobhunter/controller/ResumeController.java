@@ -52,4 +52,9 @@ public class ResumeController {
     public ResponseEntity<ResultPaginationDTO> GetAllResume(@Filter Specification<Resume> spec, Pageable pageable){
         return ResponseEntity.ok(this.resumeService.GetAllResume(spec, pageable));
     }
+
+    @GetMapping("/resumes/by-user")
+    public ResponseEntity<ResultPaginationDTO> GetAllByUser(Pageable pageable){
+        return ResponseEntity.ok(this.resumeService.GetAllByUser(pageable));
+    }
 }
