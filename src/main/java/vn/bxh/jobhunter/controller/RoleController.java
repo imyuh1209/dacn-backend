@@ -1,5 +1,6 @@
 package vn.bxh.jobhunter.controller;
 
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +40,7 @@ public class RoleController {
     }
 
     @GetMapping("/roles")
-    public ResponseEntity<ResultPaginationDTO> GetAllRole(Specification<Role> spec, Pageable pageable){
+    public ResponseEntity<ResultPaginationDTO> GetAllRole(@Filter Specification<Role> spec, Pageable pageable){
         return ResponseEntity.ok(this.roleService.GetAllRole(spec, pageable));
     }
 }

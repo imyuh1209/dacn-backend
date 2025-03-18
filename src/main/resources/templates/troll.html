@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hỏi Dân IT - Việc Làm IT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        .title {
+            color: #333;
+            font-size: 20px;
+        }
+        .job-listing {
+            text-align: left;
+            margin-top: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .job-title {
+            color: #007bff;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .company {
+            color: #555;
+            font-size: 14px;
+        }
+        .salary {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+        .tags {
+            margin-top: 5px;
+        }
+        .tag {
+            display: inline-block;
+            background-color: #ddd;
+            color: #333;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 5px;
+            margin: 2px;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            color: white;
+            background-color: #dc3545;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="title">AloAloAlo <span style="float: right;">Ít nhưng mà chất</span></h2>
+    <p>Hi <b>ERIC</b>,<br>One of these jobs may be your next one. Find out today!</p>
+    <table>
+        <tbody th:each="job : jobs">
+        <tr>
+            <div class="job-listing">
+                <a href="#" class="job-title" th:text="${job.name}">Web Developer (PHP, JavaScript)</a>
+                <div class="company" th:text="${job.company.name}"></div>
+                <div class="salary" th:text="${job.salary}">1,000 - 2,500 USD</div>
+                <div class="tags">
+                    <span class="tag">Java</span>
+                    <span class="tag">Spring</span>
+                    <span class="tag">English</span>
+                </div>
+            </div>
+        </tr>
+        </tbody>
+
+
+    </table>
+
+    <a href="#" class="btn">Xem thêm job tại Hỏi Dân IT</a>
+</div>
+</body>
+</html>

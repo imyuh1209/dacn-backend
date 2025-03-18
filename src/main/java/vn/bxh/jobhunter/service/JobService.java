@@ -5,9 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.bxh.jobhunter.domain.Company;
 import vn.bxh.jobhunter.domain.Job;
 import vn.bxh.jobhunter.domain.Skill;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
+import vn.bxh.jobhunter.repository.CompanyRepository;
 import vn.bxh.jobhunter.repository.JobRepository;
 import vn.bxh.jobhunter.repository.SkillRepository;
 import vn.bxh.jobhunter.util.error.IdInvalidException;
@@ -21,6 +23,7 @@ import java.util.Optional;
 public class JobService {
     private final JobRepository jobRepository;
     private final SkillRepository skillRepository;
+    private final CompanyRepository companyRepository;
 
     public void DeleteById(long id){
         Optional<Job> jobOptional = this.jobRepository.findById(id);
@@ -68,6 +71,11 @@ public class JobService {
                 }
             }
             job.setSkills(list);
+            if(job.getCompany()!=null){
+                Optional<Company> company = this.companyRepository.findById(job.getCompany().getId());
+                company.ifPresent(job::setCompany);
+            }
+
             return this.jobRepository.save(job);
         }throw new IdInvalidException("Name is not valid!");
     }

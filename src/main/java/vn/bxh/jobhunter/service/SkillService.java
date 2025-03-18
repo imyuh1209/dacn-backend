@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.bxh.jobhunter.domain.Job;
 import vn.bxh.jobhunter.domain.Skill;
+import vn.bxh.jobhunter.domain.Subscriber;
 import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.domain.response.ResUserDTO;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
@@ -38,11 +39,17 @@ public class SkillService {
         if(skillOptional.isPresent()){
             Skill skill = skillOptional.get();
             // Xóa tất cả quan hệ giữa Skill và Job trong bảng trung gian
-            for (Job job : skill.getJobs()) {
-                job.getSkills().remove(skill);
+            if(skill.getJobs()!=null){
+                for (Job job : skill.getJobs()) {
+                    job.getSkills().remove(skill);
+                }
             }
-            // Lưu lại các thay đổi
-            this.jobRepository.saveAll(skill.getJobs());
+            if(skill.getSubscribers()!=null){
+                for(Subscriber sub : skill.getSubscribers()){
+                    sub.getSkills().remove(skill);
+                }
+            }
+
             // Xóa Skill
             this.skillRepository.deleteById(id);
         }else{

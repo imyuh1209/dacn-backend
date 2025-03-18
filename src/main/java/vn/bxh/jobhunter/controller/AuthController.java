@@ -2,18 +2,21 @@ package vn.bxh.jobhunter.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.domain.request.ReqLoginDTO;
+import vn.bxh.jobhunter.domain.response.ResCreateUserDTO;
 import vn.bxh.jobhunter.domain.response.ResLoginDTO;
 import vn.bxh.jobhunter.service.UserService;
 import vn.bxh.jobhunter.util.SecurityUtil;
@@ -23,16 +26,31 @@ import vn.bxh.jobhunter.util.error.IdInvalidException;
 @RestController
 @RequestMapping("/api/v1")
 public class AuthController {
+    private final PasswordEncoder passwordEncoder;
     private final SecurityUtil securityUtil;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserService userService;
     @Value("${hao.jwt.refresh-token-validity-in-seconds}")
     private long RefreshTokenExpiration;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,SecurityUtil securityUtil,UserService userService) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,SecurityUtil securityUtil,
+                          UserService userService,PasswordEncoder passwordEncoder) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @PostMapping("/auth/register")
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@RequestBody User user) {
+
+        boolean existsEmail = this.userService.existEmail(user.getEmail());
+        if (existsEmail == true) {
+            throw new IdInvalidException("Email not found!" + user.getEmail());
+        }
+        String passwordEncode = passwordEncoder.encode(user.getPassword());
+        user.setPassword(passwordEncode);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.HandleSaveUser(user));
     }
 
     @PostMapping("/auth/login")

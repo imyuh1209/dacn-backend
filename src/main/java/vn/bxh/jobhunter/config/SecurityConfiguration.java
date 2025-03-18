@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,6 +21,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import vn.bxh.jobhunter.util.SecurityUtil;
 
@@ -34,7 +36,9 @@ public class SecurityConfiguration {
     String[] listApi = {
             "/",
             "/api/v1/auth/login", "/api/v1/auth/refresh", "/storage/**",
-            "/api/v1/companies/**", "/api/v1/jobs/**"
+            "/api/v1/auth/register","/api/v1/email","/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
 
@@ -52,7 +56,10 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable()) // Nếu dùng API không cần CSRF
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(listApi).permitAll() // Trang chủ không cần login
+                        .requestMatchers(listApi).permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/companies").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/jobs").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/skills").permitAll()// Trang chủ không cần login
                         .anyRequest().authenticated())
                 .formLogin(f -> f.disable())
 //                .exceptionHandling(

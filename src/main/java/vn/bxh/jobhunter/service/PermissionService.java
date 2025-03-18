@@ -1,9 +1,13 @@
 package vn.bxh.jobhunter.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.bxh.jobhunter.domain.Permission;
 import vn.bxh.jobhunter.domain.Role;
+import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.PermissionRepository;
 import vn.bxh.jobhunter.util.error.IdInvalidException;
 
@@ -57,4 +61,12 @@ public class PermissionService {
         }throw new IdInvalidException("Permission name is not valid!");
     }
 
+    public ResultPaginationDTO GetAllPermission(Specification<Permission> spec, Pageable pageable) {
+        Page<Permission> rolePage = this.permissionRepository.findAll(spec,pageable);
+        ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta(rolePage.getNumber()+1, rolePage.getSize(), rolePage.getTotalPages(), rolePage.getTotalElements());
+        resultPaginationDTO.setMeta(meta);
+        resultPaginationDTO.setResult(rolePage.getContent());
+        return resultPaginationDTO;
+    }
 }

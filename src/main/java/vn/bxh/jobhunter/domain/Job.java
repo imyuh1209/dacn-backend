@@ -38,7 +38,7 @@ public class Job {
     private String createdBy;
     private String updatedBy;
     @ManyToOne
-    @JsonIgnore
+    @JsonIgnoreProperties(value = { "jobs" })
     @JoinColumn(name = "company_id")
     private Company company;
     @JsonIgnore

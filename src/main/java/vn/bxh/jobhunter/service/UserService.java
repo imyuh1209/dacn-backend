@@ -33,13 +33,17 @@ public class UserService {
     }
 
     public ResCreateUserDTO HandleSaveUser(User user) {
-        Optional<Company> companyOptional = this.companyRepository.findById(user.getCompany().getId());
-        if(companyOptional.isPresent()){
-            Company company = companyOptional.get();
-            user.setCompany(company);
+        if(user.getCompany()!=null){
+            Optional<Company> companyOptional = this.companyRepository.findById(user.getCompany().getId());
+            if(companyOptional.isPresent()){
+                Company company = companyOptional.get();
+                user.setCompany(company);
+            }
         }
-        Optional<Role> roleOptional = this.roleRepository.findById(user.getRole().getId());
-        roleOptional.ifPresent(user::setRole);
+        if(user.getRole()!=null){
+            Optional<Role> roleOptional = this.roleRepository.findById(user.getRole().getId());
+            roleOptional.ifPresent(user::setRole);
+        }
         return this.convertToResCreateUserDTO(this.userRepository.save(user));
     }
 

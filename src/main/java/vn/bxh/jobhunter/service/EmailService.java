@@ -1,0 +1,149 @@
+package vn.bxh.jobhunter.service;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.Synchronized;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import vn.bxh.jobhunter.domain.*;
+import vn.bxh.jobhunter.domain.response.Email.ResEmailJob;
+import vn.bxh.jobhunter.repository.JobRepository;
+import vn.bxh.jobhunter.repository.SubscriberRepository;
+import vn.bxh.jobhunter.repository.UserRepository;
+import vn.bxh.jobhunter.util.SecurityUtil;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+@Service
+@AllArgsConstructor
+public class EmailService {
+    private final MailSender mailSender;
+    private final TemplateEngine templateEngine;
+    private final JavaMailSender javaMailSender;
+    private final UserRepository userRepository;
+    private final SubscriberRepository subscriberRepository;
+    private final JobRepository jobRepository;
+
+
+    private final String[] subjects = {
+            "Cậu rảnh không? Tớ có chuyện muốn hỏi",
+            "Nhớ cậu rồi, lâu quá không gặp!",
+            "Có gì mới không? Chia sẻ chút đi!",
+            "Tớ vừa thấy cái này và nhớ đến cậu",
+            "Chỉ là một email bình thường thôi "
+    };
+
+    private final String[] messages = {
+            "Hôm nay tớ vừa đi ngang qua quán cà phê mà tụi mình hay ngồi. Nhớ lại mấy lần tám chuyện vui ghê! Khi nào rảnh làm một kèo nhé?",
+            "Dạo này thế nào rồi? Có gì vui không? Tớ đang muốn tìm vài bộ phim hay để xem, cậu có gợi ý nào không?",
+            "Không có gì đặc biệt đâu, chỉ là tự nhiên nhớ đến cậu nên gửi email này thôi. Hy vọng cậu có một ngày thật tuyệt vời!",
+            "Tớ vừa đọc một bài viết khá hay và thấy khá giống tình huống của cậu trước đây. Khi nào có thời gian, gửi tớ một email nhé!",
+            "Hôm nay hơi rảnh nên gửi email cho vài người bạn. Nếu cậu thấy email này, chắc chắn cậu là người đặc biệt đó!"
+    };
+
+//    @Scheduled(cron = "*/10 * * * * *") // Gửi mỗi 5 phút
+//    @Transactional
+    public void sendRandomEmail() {
+        Random random = new Random();
+        String subject = subjects[random.nextInt(subjects.length)];
+        String text = messages[random.nextInt(messages.length)];
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo("trinhquangkhai2010@gmail.com"); // Thay đổi email người nhận nếu cần
+        msg.setSubject(subject);
+        msg.setText(text);
+
+        mailSender.send(msg);
+        System.out.println("Email đã gửi: " + subject);
+    }
+
+    public String sendConfirmationEmail() {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo("haogolike1@gmail.com");
+        msg.setSubject("Testing from Spring Boot");
+        msg.setText("Hello World from Spring Boot Email");
+        mailSender.send(msg);
+        return "OK";
+    }
+
+    public void sendEmailSync(String to, String subject, String content, boolean isMultipart,
+                              boolean isHtml) {
+        // Prepare message using a Spring helper
+        MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
+                    isMultipart, StandardCharsets.UTF_8.name());
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(content, isHtml);
+            this.javaMailSender.send(mimeMessage);
+        } catch (MailException | MessagingException e) {
+            System.out.println("ERROR SEND EMAIL: " + e);
+        }
+    }
+    @Async
+    public void sendEmailFromTemplateSync(
+            String to,
+            String subject,
+            String templateName,
+            String username,
+            Object value) {
+
+        Context context = new Context();
+        context.setVariable("name", username);
+        context.setVariable("jobs", value);
+
+        String content = templateEngine.process(templateName, context);
+        this.sendEmailSync(to, subject, content, false, true);
+    }
+
+    public void sendSubscribersEmailJobs() {
+        List<Subscriber> listSubs = this.subscriberRepository.findAll();
+        if (listSubs != null && listSubs.size() > 0) {
+            for (Subscriber sub : listSubs) {
+                List<Skill> listSkills = sub.getSkills();
+                if (listSkills != null && listSkills.size() > 0) {
+                    List<Job> listJobs = this.jobRepository.findBySkillsIn(listSkills);
+                    if (listJobs != null && listJobs.size() > 0) {
+                        List<ResEmailJob> arr = listJobs.stream().map(
+                        job -> this.convertJobToSendEmail(job)).collect(Collectors.toList());
+                        this.sendEmailFromTemplateSync(
+                                sub.getEmail(),
+                                "Cơ hội việc làm hot đang chờ đón bạn, khám phá ngay",
+                                "troll",
+                                sub.getName(),
+                                arr);
+                    }
+                }
+            }
+        }
+    }
+
+    public ResEmailJob convertJobToSendEmail(Job job) {
+        ResEmailJob res = new ResEmailJob();
+        res.setName(job.getName());
+        res.setSalary(job.getSalary());
+        res.setCompany(new ResEmailJob.CompanyEmail(job.getCompany().getName()));
+        List<Skill> skills = job.getSkills();
+        List<ResEmailJob.SkillEmail> s = skills.stream().map(skill -> new
+                        ResEmailJob.SkillEmail(skill.getName()))
+                .collect(Collectors.toList());
+        res.setSkills(s);
+        return res;
+    }
+}
