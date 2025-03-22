@@ -37,12 +37,9 @@ public class SecurityConfiguration {
             "/",
             "/api/v1/auth/login", "/api/v1/auth/refresh", "/storage/**",
             "/api/v1/auth/register","/api/v1/email","/v3/api-docs/**",
-            "/swagger-ui/**",
+            "/swagger-ui/**","/api/v1/users",
             "/swagger-ui.html"
     };
-
-
-
 
 
     @Bean
@@ -81,7 +78,6 @@ public class SecurityConfiguration {
         grantedAuthoritiesConverter.setAuthoritiesClaimName("user");
         JwtAuthenticationConverter jwtAuthenticationConverter = new
                 JwtAuthenticationConverter();
-
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
     }

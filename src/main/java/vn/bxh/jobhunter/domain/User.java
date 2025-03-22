@@ -1,7 +1,7 @@
 package vn.bxh.jobhunter.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import vn.bxh.jobhunter.util.Constant.GenderEnum;
@@ -20,13 +20,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Name can not empty!")
+    @NotBlank(message = "Name cannot be empty!")
     private String name;
+
+    @Email(message = "Invalid email format!")
+    @NotBlank(message = "Email cannot be empty!")
     private String email;
+
+    @NotBlank(message = "Password cannot be empty!")
+    @Size(min = 3, message = "Password must be at least 3 characters!")
     private String password;
-    private int age;
+
+    @NotNull(message = "Age cannot be null!")
+    @Min(value = 16, message = "Age must be at least 16!")
+    private Integer age;
+
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
+
+    @NotBlank(message = "Address cannot be empty!")
     private String address;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;

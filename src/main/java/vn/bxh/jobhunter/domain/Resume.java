@@ -26,7 +26,6 @@ public class Resume {
 
     private Instant createdAt;
     private Instant updatedAt;
-
     private String createdBy;
     private String updatedBy;
 
@@ -43,7 +42,6 @@ public class Resume {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
-
         this.createdAt = Instant.now();
     }
 
@@ -52,7 +50,6 @@ public class Resume {
         this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
-
         this.updatedAt = Instant.now();
     }
 }

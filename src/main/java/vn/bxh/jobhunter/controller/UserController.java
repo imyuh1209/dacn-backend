@@ -3,6 +3,7 @@ package vn.bxh.jobhunter.controller;
 import java.util.Optional;
 
 import com.turkraft.springfilter.boot.Filter;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<ResCreateUserDTO> createNewUser(@RequestBody User user) {
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User user) {
 
         boolean existsEmail = this.userService.existEmail(user.getEmail());
         if (existsEmail == true) {
@@ -54,7 +55,7 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         Optional<User> user = this.userRepository.findById(id);
-        if(!user.isPresent()){
+        if(user.isEmpty()){
             throw new IdInvalidException("Id not exists!");
         }
         this.userService.HandleDeleteUser(id);
