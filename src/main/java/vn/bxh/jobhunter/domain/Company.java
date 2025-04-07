@@ -42,10 +42,12 @@ public class Company {
 
     private String updatedBy;
 
+
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     @JsonIgnore
     List<Job> jobs;
 
+    @JsonIgnore
     @OneToMany( mappedBy = "company" ,cascade = CascadeType.ALL)
     List<User> users;
 

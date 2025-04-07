@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import vn.bxh.jobhunter.domain.User;
+import vn.bxh.jobhunter.domain.request.ReqUserUpdate;
 import vn.bxh.jobhunter.domain.response.ResCreateUserDTO;
 import vn.bxh.jobhunter.domain.response.ResUserDTO;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
@@ -47,8 +48,8 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<ResUserDTO> updateNewUser(@RequestBody User user) {
-        User user1 = this.userService.HandleUpdateUser(user);
+    public ResponseEntity<ResUserDTO> updateNewUser(@RequestBody ReqUserUpdate userUpdate) {
+        User user1 = this.userService.HandleUpdateUser(userUpdate);
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(user1));
     }
 

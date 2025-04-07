@@ -43,6 +43,7 @@ public class CompanyService {
             c.setName(company.getName());
             c.setDescription(company.getDescription());
             c.setAddress(company.getAddress());
+            this.companyRepository.save(c);
             return c;
         }
         return null;
@@ -62,6 +63,7 @@ public class CompanyService {
             res.setName(company.getName());
             res.setDescription(company.getDescription());
             res.setAddress(company.getAddress());
+            res.setLogo(company.getLogo());
             resList.add(res);
         }
         resultPaginationDTO.setResult(resList);

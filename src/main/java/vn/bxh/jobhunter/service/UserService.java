@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import vn.bxh.jobhunter.domain.Company;
 import vn.bxh.jobhunter.domain.Role;
+import vn.bxh.jobhunter.domain.request.ReqUserUpdate;
 import vn.bxh.jobhunter.domain.response.ResCompanyDTO;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO.Meta;
 import vn.bxh.jobhunter.domain.response.ResCreateUserDTO;
@@ -77,21 +78,19 @@ public class UserService {
         return res;
     }
 
-    public User HandleUpdateUser(User user) {
+    public User HandleUpdateUser(ReqUserUpdate user) {
         Optional<User> userOptional = this.userRepository.findById(user.getId());
         if (userOptional.isPresent()) {
-            User newUser = userOptional.get();
-            newUser.setName(user.getName());
-            newUser.setEmail(user.getEmail());
-            newUser.setAge(user.getAge());
-            newUser.setGender(user.getGender());
-            Optional<Company> companyOptional = this.companyRepository.findById(user.getCompany().getId());
-            if(companyOptional.isPresent()){
-                newUser.setCompany(companyOptional.get());
-            }
-            return newUser;
+            User newUpdate = userOptional.get();
+            newUpdate.setName(user.getName());
+            newUpdate.setAge(user.getAge());
+            newUpdate.setAddress(user.getAddress());
+            newUpdate.setGender(user.getGender());
+            return this.userRepository.save(newUpdate);
+        }else{
+            return null;
         }
-        return null;
+
     }
 
     public User HandleSetFreshToken(String email, String refresh_token){

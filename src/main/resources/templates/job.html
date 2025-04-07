@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Việc Làm Gợi Ý Cho Bạn</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: auto;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .job-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            background-color: #fafafa;
+        }
+
+        .job-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 0;
+        }
+
+        .company {
+            color: #374151;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .salary {
+            color: #10b981;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .skills {
+            margin-top: 10px;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 6px 10px;
+            margin: 3px 5px 3px 0;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .footer a {
+            display: inline-block;
+            background-color: #ef4444;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .job-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Chào <span th:text="${name}">bạn</span> 👋</h2>
+        <p>Những công việc dưới đây có thể là lựa chọn tiếp theo của bạn!</p>
+    </div>
+
+    <div th:each="job : ${jobs}" class="job-card">
+        <p class="job-title" th:text="${job.name}">Tên công việc</p>
+        <p class="company" th:text="${job.company.name}">Tên công ty</p>
+        <p class="salary" th:text="'Mức lương: ' + ${job.salary} + ' VND'">Lương</p>
+        <div class="skills">
+            <span class="skill-tag"
+                  th:each="skill : ${job.skills}"
+                  th:text="${skill.name}">Kỹ năng</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="https://your-job-site.com" target="_blank">Xem thêm việc làm</a>
+    </div>
+</div>
+</body>
+</html>

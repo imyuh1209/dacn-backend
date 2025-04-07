@@ -13,5 +13,6 @@ public class ResCompanyDTO {
     private String name;
     private String description;
     private String address;
+    private String logo;
 }
 

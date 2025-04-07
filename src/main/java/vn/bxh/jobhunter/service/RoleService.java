@@ -45,7 +45,7 @@ public class RoleService {
             Role roleDB = this.roleRepository.findById(role.getId()).get();
             roleDB.setActive(role.isActive());
             if(role.getPermissions()!=null){
-                List<Permission> listPer = new ArrayList<>();
+                List<Permission> listPer = roleDB.getPermissions()==null?new ArrayList<>():roleDB.getPermissions();
                 for (Permission per : role.getPermissions()){
                     Optional<Permission> permission = this.permissionRepository.findById(per.getId());
                     permission.ifPresent(listPer::add);// add to list
