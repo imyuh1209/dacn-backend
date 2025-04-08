@@ -31,8 +31,7 @@ public class JobController {
 
     @PutMapping("/jobs")
     public ResponseEntity<Job> updateJob(@RequestBody Job job){
-        this.jobService.HandleUpdateJob(job);
-        return ResponseEntity.ok(this.jobService.HandleSaveJob(job));
+         return ResponseEntity.ok(this.jobRepository.save(this.jobService.HandleUpdateJob(job)));
     }
 
     @GetMapping("/jobs/{id}")

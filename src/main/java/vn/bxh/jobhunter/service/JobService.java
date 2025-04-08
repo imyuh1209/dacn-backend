@@ -94,7 +94,8 @@ public class JobService {
             newjob.setLocation(job.getLocation());
             newjob.setSalary(job.getSalary());
             newjob.setSkills(job.getSkills());
-            this.jobRepository.save(newjob);
+            return this.jobRepository.save(newjob);
+
         }
         return null;
     }
