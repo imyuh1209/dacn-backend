@@ -33,20 +33,20 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public ResCreateUserDTO HandleSaveUser(User user) {
-        if(user.getCompany()!=null){
-            Optional<Company> companyOptional = this.companyRepository.findById(user.getCompany().getId());
-            if(companyOptional.isPresent()){
-                Company company = companyOptional.get();
-                user.setCompany(company);
+        public ResCreateUserDTO HandleSaveUser(User user) {
+            if(user.getCompany()!=null){
+                Optional<Company> companyOptional = this.companyRepository.findById(user.getCompany().getId());
+                if(companyOptional.isPresent()){
+                    Company company = companyOptional.get();
+                    user.setCompany(company);
+                }
             }
+            if(user.getRole()!=null){
+                Optional<Role> roleOptional = this.roleRepository.findById(user.getRole().getId());
+                roleOptional.ifPresent(user::setRole);
+            }
+            return this.convertToResCreateUserDTO(this.userRepository.save(user));
         }
-        if(user.getRole()!=null){
-            Optional<Role> roleOptional = this.roleRepository.findById(user.getRole().getId());
-            roleOptional.ifPresent(user::setRole);
-        }
-        return this.convertToResCreateUserDTO(this.userRepository.save(user));
-    }
 
     public void HandleDeleteUser(Long id) {
         this.userRepository.deleteById(id);
