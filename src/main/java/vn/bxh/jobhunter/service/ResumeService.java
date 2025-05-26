@@ -27,6 +27,10 @@ public class ResumeService {
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
 
+    public long countResumesByJob(Long jobId) {
+        return resumeRepository.countByJobId(jobId);
+    }
+
     public ResultPaginationDTO GetAllUser(Specification<Resume> spec, Pageable pageable){
         Page<Resume> pageResume = this.resumeRepository.findAll(spec, pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();

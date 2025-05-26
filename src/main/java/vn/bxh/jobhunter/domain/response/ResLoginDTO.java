@@ -2,6 +2,7 @@ package vn.bxh.jobhunter.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import vn.bxh.jobhunter.domain.Company;
 import vn.bxh.jobhunter.domain.Role;
 
 @Getter
@@ -20,6 +21,7 @@ public class ResLoginDTO {
         private String email;
         private String name;
         private Role role;
+        private Company company;
     }
 
 

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.bxh.jobhunter.domain.Company;
+import vn.bxh.jobhunter.domain.Job;
 import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.domain.response.ResCompanyDTO;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
@@ -21,6 +22,11 @@ import java.util.Optional;
 public class CompanyService {
     private final CompanyRepository companyRepository;
     private final UserService userService;
+
+    public List<Job> FetchAllJobsByCompany(Long id){
+        Optional<Company> company = companyRepository.findById(id);
+        return company.map(Company::getJobs).orElse(null);
+    }
 
     public Company HandleSaveCompany(Company company){
         return this.companyRepository.save(company);

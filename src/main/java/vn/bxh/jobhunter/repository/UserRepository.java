@@ -13,6 +13,7 @@ import vn.bxh.jobhunter.domain.User;
 public interface UserRepository extends JpaRepository<User, Long> , JpaSpecificationExecutor<User> {
     User save(User user);
 
+
     void deleteById(Long id);
 
     Optional<User> findById(Long id);

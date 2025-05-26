@@ -10,11 +10,13 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.bxh.jobhunter.domain.Job;
+import vn.bxh.jobhunter.domain.response.JobWithApplicantCountDTO;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.JobRepository;
 import vn.bxh.jobhunter.service.JobService;
 import vn.bxh.jobhunter.util.error.IdInvalidException;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -24,6 +26,13 @@ import java.util.OptionalInt;
 public class JobController {
     private final JobService jobService;
     private final JobRepository jobRepository;
+
+    @GetMapping("/jobs-with-applicants")
+    public ResponseEntity<List<JobWithApplicantCountDTO>> getJobsWithApplicantCount() {
+        List<JobWithApplicantCountDTO> list = jobService.getAllJobsWithApplicantCountByCurrentUser();
+        return ResponseEntity.ok(list);
+    }
+
     @PostMapping("/jobs")
     public ResponseEntity<Job> createJob(@Valid @RequestBody Job job){
         return ResponseEntity.status(HttpStatus.CREATED).body(this.jobService.HandleSaveJob(job));
@@ -42,6 +51,21 @@ public class JobController {
     @GetMapping("/jobs")
     public ResponseEntity<ResultPaginationDTO> getAllJobs(@Filter Specification<Job> spec, Pageable pageable){
         return ResponseEntity.ok(this.jobService.FindAllJobs(spec,pageable));
+    }
+
+    @GetMapping("/jobs/by-company")
+    public ResponseEntity<ResultPaginationDTO> getAllJobsByCurrentCompany(
+            @Filter Specification<Job> spec, Pageable pageable) {
+
+        Long companyId = this.jobService.getCurrentUserCompanyId();
+
+        // Combine spec với điều kiện lọc theo companyId
+        Specification<Job> companySpec = (root, query, cb) ->
+                cb.equal(root.get("company").get("id"), companyId);
+
+        Specification<Job> finalSpec = spec == null ? companySpec : spec.and(companySpec);
+
+        return ResponseEntity.ok(this.jobService.FindAllJobs(finalSpec, pageable));
     }
 
     @DeleteMapping("/jobs/{id}")

@@ -15,6 +15,7 @@ import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.domain.request.ReqUserUpdate;
 import vn.bxh.jobhunter.domain.response.ResCreateUserDTO;
 import vn.bxh.jobhunter.domain.response.ResUserDTO;
+import vn.bxh.jobhunter.domain.response.RestResponse;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.UserRepository;
 import vn.bxh.jobhunter.service.UserService;
@@ -54,13 +55,13 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    @ApiMessage("Xóa người dùng thành công")
+    public void deleteUser(@PathVariable Long id) {
         Optional<User> user = this.userRepository.findById(id);
         if(user.isEmpty()){
             throw new IdInvalidException("Id not exists!");
         }
         this.userService.HandleDeleteUser(id);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/users/{id}")

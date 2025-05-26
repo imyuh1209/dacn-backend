@@ -70,6 +70,7 @@ public class AuthController {
         userLogin.setName(userDB.getName());
         userLogin.setEmail(userDB.getEmail());
         userLogin.setRole(userDB.getRole());
+        userLogin.setCompany(userDB.getCompany());
         //
 
         ResLoginDTO resLoginDTO = new ResLoginDTO();
@@ -99,6 +100,7 @@ public class AuthController {
             userLogin.setName(userDB.getName());
             userLogin.setEmail(userDB.getEmail());
             userLogin.setRole(userDB.getRole());
+            userLogin.setCompany(userDB.getCompany());
         }
         ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
         userGetAccount.setUser(userLogin);

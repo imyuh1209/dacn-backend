@@ -20,4 +20,5 @@ public class JobhunterApplication {
 		// Lấy MailSender sau khi Spring đã khởi động
 		System.out.println(context.getBean(MailSender.class));
 	}
+
 }

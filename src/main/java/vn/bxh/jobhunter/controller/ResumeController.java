@@ -38,9 +38,7 @@ public class ResumeController {
 
     @PostMapping("/resumes")
     public ResponseEntity<ResResumeDTO> createResume(@RequestBody Resume resume){
-        if(this.resumeRepository.existsByEmail(resume.getEmail())){
-            throw new IdInvalidException("Email is not valid !");
-        }
+
         Resume resumeNew = this.resumeService.HandleCreateResume(resume);
         return ResponseEntity.status(HttpStatus.CREATED).
                 body(this.resumeService.ConvertToResResumeDTO(resumeNew));
@@ -63,34 +61,40 @@ public class ResumeController {
     }
 
     @GetMapping("/resumes")
-    public ResponseEntity<ResultPaginationDTO> GetAllResume(@Filter Specification<Resume> spec, Pageable pageable){
-        List<Long> arrJobIds = null;
-        String email = SecurityUtil.getCurrentUserLogin().isPresent()
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
+    public ResponseEntity<ResultPaginationDTO> GetAllResume(@Filter Specification<Resume> spec, Pageable pageable) {
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
         User currentUser = this.userRepository.findByEmail(email);
-        if (currentUser != null) {
-            Company userCompany = currentUser.getCompany();
-            if (userCompany != null) {
-                List<Job> companyJobs = userCompany.getJobs();
-                if (companyJobs != null && companyJobs.size() > 0) {
-                    arrJobIds = companyJobs.stream().map(x -> x.getId())
-                            .toList();
-                }
+
+        Specification<Resume> finalSpec = spec;
+
+        if (currentUser != null && currentUser.getCompany() != null) {
+            List<Job> companyJobs = currentUser.getCompany().getJobs();
+            if (companyJobs != null && !companyJobs.isEmpty()) {
+                List<Long> arrJobIds = companyJobs.stream()
+                        .map(Job::getId)
+                        .toList();
+
+                // ✅ Sử dụng Specification viết tay
+                Specification<Resume> jobInSpec = (root, query, cb) -> root.get("job").get("id").in(arrJobIds);
+
+                finalSpec = (spec == null) ? jobInSpec : jobInSpec.and(spec);
             }
         }
-        Specification<Resume> jobInSpec = filterSpecificationConverter.convert(filterBuilder.field("job")
-                .in(filterBuilder.input(arrJobIds)).get());
 
-        Specification<Resume> finalSpec = jobInSpec.and(spec);
-
-
-        return ResponseEntity.ok(this.resumeService.GetAllResume(spec, pageable));
+        return ResponseEntity.ok(this.resumeService.GetAllResume(finalSpec, pageable));
     }
+
+
+
 
     @PostMapping("/resumes/by-user")
     public ResponseEntity<ResultPaginationDTO> GetAllByUser(Pageable pageable){
         return ResponseEntity.ok(this.resumeService.GetAllByUser(pageable));
+    }
+
+    @GetMapping("resumes/count-by-job/{jobId}")
+    public ResponseEntity<Long> countByJob(@PathVariable Long jobId) {
+        long count = resumeService.countResumesByJob(jobId);
+        return ResponseEntity.ok(count);
     }
 }
