@@ -17,7 +17,7 @@ import java.util.List;
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @NotBlank(message = "Name can not be empty!")
     private String name;
 

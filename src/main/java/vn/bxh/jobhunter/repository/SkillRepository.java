@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface SkillRepository extends JpaRepository<Skill, Long>, JpaSpecificationExecutor<Skill> {
     Optional<Skill> findByName(String name);
-    Optional<Skill> findByNameAndId(String name, long id);
+    Optional<Skill> findByNameAndId(String name, Long id);
 }

@@ -15,7 +15,7 @@ import vn.bxh.jobhunter.service.SkillService;
 @RestController
 @RequestMapping("/api/v1")
 @AllArgsConstructor
-public class SkillController {
+public class    SkillController {
 
     private final SkillService service;
 
@@ -30,7 +30,7 @@ public class SkillController {
     }
 
     @GetMapping("/skills/{id}")
-    public ResponseEntity<Skill> getSkill(@PathVariable long id){
+    public ResponseEntity<Skill> getSkill(@PathVariable Long id){
         return ResponseEntity.ok(this.service.GetSkill(id));
     }
 
@@ -40,7 +40,7 @@ public class SkillController {
     }
 
     @DeleteMapping("/skills/{id}")
-    public ResponseEntity<Void> deleteSkill(@PathVariable long id){
+    public ResponseEntity<Void> deleteSkill(@PathVariable Long id){
         this.service.HandleDeleteSkill(id);
         return ResponseEntity.ok(null);
     }
