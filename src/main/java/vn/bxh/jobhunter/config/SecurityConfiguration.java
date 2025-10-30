@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable()) // Nếu dùng API không cần CSRF
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(listApi).permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/companies").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/jobs").permitAll()

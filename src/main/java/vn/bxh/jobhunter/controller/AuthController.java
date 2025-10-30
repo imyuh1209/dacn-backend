@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.domain.request.ReqLoginDTO;
+import vn.bxh.jobhunter.domain.request.ReqRefreshTokenDTO;
 import vn.bxh.jobhunter.domain.response.ResCreateUserDTO;
 import vn.bxh.jobhunter.domain.response.ResLoginDTO;
 import vn.bxh.jobhunter.service.UserService;
@@ -32,6 +33,8 @@ public class AuthController {
     private final UserService userService;
     @Value("${hao.jwt.refresh-token-validity-in-seconds}")
     private long RefreshTokenExpiration;
+    @Value("${hao.cookie.secure:false}")
+    private boolean cookieSecure;
 
     public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,SecurityUtil securityUtil,
                           UserService userService,PasswordEncoder passwordEncoder) {
@@ -81,10 +84,11 @@ public class AuthController {
         this.userService.HandleSetFreshToken(reqLoginDTO.getUsername(), refresh_token);
         ResponseCookie springCookie = ResponseCookie.from("refresh_token", refresh_token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(RefreshTokenExpiration)
                 .build();
+        resLoginDTO.setRefreshToken(refresh_token);
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, springCookie.toString()).body(resLoginDTO);
     }
 
@@ -109,7 +113,14 @@ public class AuthController {
 
     @GetMapping("/auth/refresh")
     @ApiMessage("Get user by refresh token")
-    public ResponseEntity<ResLoginDTO> getRefreshToken(@CookieValue(name="refresh_token") String refresh_token){
+    public ResponseEntity<ResLoginDTO> getRefreshToken(
+            @CookieValue(name="refresh_token", required = false) String refreshCookie,
+            @RequestHeader(name = "X-Refresh-Token", required = false) String refreshHeader
+    ){
+        String refresh_token = (refreshCookie != null && !refreshCookie.isBlank()) ? refreshCookie : refreshHeader;
+        if (refresh_token == null || refresh_token.isBlank()) {
+            throw new IdInvalidException("Refresh token is required");
+        }
         Jwt decodedToken = this.securityUtil.checkValidRefreshToken(refresh_token);
         String email = decodedToken.getSubject();
         User userDB = this.userService.FindByEmailAndRefreshToken(email,refresh_token);
@@ -134,10 +145,48 @@ public class AuthController {
         this.userService.HandleSetFreshToken(email, new_refresh_token);
         ResponseCookie springCookie = ResponseCookie.from("refresh_token", new_refresh_token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(RefreshTokenExpiration)
                 .build();
+        resLoginDTO.setAccessToken(access_token);
+        resLoginDTO.setRefreshToken(new_refresh_token);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, springCookie.toString()).body(resLoginDTO);
+    }
+
+    @PostMapping("/auth/refresh")
+    @ApiMessage("Get user by refresh token (body)")
+    public ResponseEntity<ResLoginDTO> refreshTokenByBody(@Valid @RequestBody ReqRefreshTokenDTO req) {
+        String refresh_token = req.getRefreshToken();
+        if (refresh_token == null || refresh_token.isBlank()) {
+            throw new IdInvalidException("Refresh token is required");
+        }
+        Jwt decodedToken = this.securityUtil.checkValidRefreshToken(refresh_token);
+        String email = decodedToken.getSubject();
+        User userDB = this.userService.FindByEmailAndRefreshToken(email, refresh_token);
+        if (userDB == null) {
+            throw new IdInvalidException("User not found by token and email");
+        }
+
+        ResLoginDTO.UserLogin  userLogin = new ResLoginDTO.UserLogin();
+        userLogin.setId(userDB.getId());
+        userLogin.setName(userDB.getName());
+        userLogin.setEmail(userDB.getEmail());
+        userLogin.setRole(userDB.getRole());
+
+        ResLoginDTO resLoginDTO = new ResLoginDTO();
+        resLoginDTO.setUser(userLogin);
+        String access_token = this.securityUtil.createAccessToken(email,resLoginDTO);
+        String new_refresh_token = this.securityUtil.createRefreshToken(email,resLoginDTO);
+        this.userService.HandleSetFreshToken(email, new_refresh_token);
+        ResponseCookie springCookie = ResponseCookie.from("refresh_token", new_refresh_token)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(RefreshTokenExpiration)
+                .build();
+        resLoginDTO.setAccessToken(access_token);
+        resLoginDTO.setRefreshToken(new_refresh_token);
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, springCookie.toString()).body(resLoginDTO);
     }
 
@@ -150,7 +199,7 @@ public class AuthController {
         ResponseCookie deleteSpringCookie = ResponseCookie
                 .from("refresh_token", null)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0)
                 .build();
