@@ -44,6 +44,10 @@ public class UserService {
             if(user.getRole()!=null){
                 Optional<Role> roleOptional = this.roleRepository.findById(user.getRole().getId());
                 roleOptional.ifPresent(user::setRole);
+            } else {
+                // Gán role mặc định USER nếu người dùng chưa chọn role
+                Optional<Role> defaultRole = this.roleRepository.findByName("USER");
+                defaultRole.ifPresent(user::setRole);
             }
             return this.convertToResCreateUserDTO(this.userRepository.save(user));
         }
@@ -82,12 +86,12 @@ public class UserService {
         Optional<User> userOptional = this.userRepository.findById(user.getId());
         if (userOptional.isPresent()) {
             User newUpdate = userOptional.get();
-            newUpdate.setName(user.getName());
-            newUpdate.setAge(user.getAge());
-            newUpdate.setAddress(user.getAddress());
-            newUpdate.setGender(user.getGender());
+            if (user.getName() != null) newUpdate.setName(user.getName());
+            if (user.getAge() != null) newUpdate.setAge(user.getAge());
+            if (user.getAddress() != null) newUpdate.setAddress(user.getAddress());
+            if (user.getGender() != null) newUpdate.setGender(user.getGender());
             return this.userRepository.save(newUpdate);
-        }else{
+        } else {
             return null;
         }
 

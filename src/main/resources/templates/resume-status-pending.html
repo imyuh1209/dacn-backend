@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${companyName} + ' – Xác nhận đã nhận được hồ sơ ứng tuyển của bạn'">Xác nhận hồ sơ</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; }
+        .container { background: #fff; max-width: 640px; margin: auto; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { color: #111827; }
+        p { color: #374151; line-height: 1.6; }
+        .footer { margin-top: 20px; color: #6b7280; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>Kính chào <span th:text="${candidateName}">Tên ứng viên</span>,</p>
+    <p>Cảm ơn bạn đã quan tâm và gửi hồ sơ ứng tuyển đến <b th:text="${companyName}">Tên công ty</b>.</p>
+    <p>Hiện tại, hồ sơ của bạn đã được hệ thống ghi nhận và đang trong hàng chờ để bộ phận nhân sự xem xét.</p>
+    <p>Chúng tôi sẽ tiến hành đánh giá và phản hồi kết quả sớm nhất có thể.</p>
+    <p>Trân trọng,<br/><b th:text="${companyName}">Tên công ty</b> – Phòng Nhân sự</p>
+    <div class="footer">Email được gửi tự động từ hệ thống JobHunter.</div>
+</div>
+</body>
+</html>

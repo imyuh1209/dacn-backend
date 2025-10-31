@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${companyName} + ' – Hồ sơ của bạn đang được xem xét'">Đang xem xét</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; }
+        .container { background: #fff; max-width: 640px; margin: auto; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { color: #111827; }
+        p { color: #374151; line-height: 1.6; }
+        .footer { margin-top: 20px; color: #6b7280; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>Kính chào <span th:text="${candidateName}">Tên ứng viên</span>,</p>
+    <p>Chúng tôi xin thông báo rằng hồ sơ ứng tuyển của bạn tại <b th:text="${companyName}">Tên công ty</b> đang được đội ngũ tuyển dụng xem xét.</p>
+    <p>Quá trình đánh giá sẽ bao gồm việc xem xét kỹ năng, kinh nghiệm, và sự phù hợp với vị trí <b th:text="${positionName}">Tên vị trí</b> mà bạn đã ứng tuyển.</p>
+    <p>Chúng tôi sẽ liên hệ lại ngay khi có kết quả hoặc cần thêm thông tin từ bạn.</p>
+    <p>Trân trọng,<br/><b th:text="${companyName}">Tên công ty</b> – Bộ phận Tuyển dụng</p>
+    <div class="footer">Email được gửi tự động từ hệ thống JobHunter.</div>
+</div>
+</body>
+</html>

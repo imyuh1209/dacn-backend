@@ -83,4 +83,10 @@ public class SavedJobService {
             savedJobRepo.delete(sj);
         }
     }
+
+    @Transactional(readOnly = true)
+    public boolean isSaved(Long jobId) {
+        User user = getCurrentUserOrThrow();
+        return savedJobRepo.findByUserIdAndJobId(user.getId(), jobId).isPresent();
+    }
 }

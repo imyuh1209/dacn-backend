@@ -72,6 +72,9 @@ public class AuthController {
         userLogin.setId(userDB.getId());
         userLogin.setName(userDB.getName());
         userLogin.setEmail(userDB.getEmail());
+        userLogin.setGender(userDB.getGender());
+        userLogin.setAddress(userDB.getAddress());
+        userLogin.setAge(userDB.getAge());
         userLogin.setRole(userDB.getRole());
         userLogin.setCompany(userDB.getCompany());
         //
@@ -103,6 +106,9 @@ public class AuthController {
             userLogin.setId(userDB.getId());
             userLogin.setName(userDB.getName());
             userLogin.setEmail(userDB.getEmail());
+            userLogin.setGender(userDB.getGender());
+            userLogin.setAddress(userDB.getAddress());
+            userLogin.setAge(userDB.getAge());
             userLogin.setRole(userDB.getRole());
             userLogin.setCompany(userDB.getCompany());
         }
@@ -132,7 +138,11 @@ public class AuthController {
         userLogin.setId(userDB.getId());
         userLogin.setName(userDB.getName());
         userLogin.setEmail(userDB.getEmail());
+        userLogin.setGender(userDB.getGender());
+        userLogin.setAddress(userDB.getAddress());
+        userLogin.setAge(userDB.getAge());
         userLogin.setRole(userDB.getRole());
+        userLogin.setCompany(userDB.getCompany());
 
         //
 
@@ -172,7 +182,11 @@ public class AuthController {
         userLogin.setId(userDB.getId());
         userLogin.setName(userDB.getName());
         userLogin.setEmail(userDB.getEmail());
+        userLogin.setGender(userDB.getGender());
+        userLogin.setAddress(userDB.getAddress());
+        userLogin.setAge(userDB.getAge());
         userLogin.setRole(userDB.getRole());
+        userLogin.setCompany(userDB.getCompany());
 
         ResLoginDTO resLoginDTO = new ResLoginDTO();
         resLoginDTO.setUser(userLogin);

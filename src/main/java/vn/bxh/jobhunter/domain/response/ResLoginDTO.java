@@ -22,6 +22,10 @@ public class ResLoginDTO {
         private long id;
         private String email;
         private String name;
+        // Thêm các trường hồ sơ để trang Account hiển thị/refresh đúng
+        private vn.bxh.jobhunter.util.Constant.GenderEnum gender;
+        private String address;
+        private Integer age;
         private Role role;
         private Company company;
     }

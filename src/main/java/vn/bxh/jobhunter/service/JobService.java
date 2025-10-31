@@ -124,4 +124,23 @@ public class JobService {
         }
         return null;
     }
+
+    // Trả về danh sách job đơn giản (id, name) theo công ty hiện tại
+    public List<vn.bxh.jobhunter.domain.response.JobSimpleDTO> getJobsByCurrentCompanySimple() {
+        String username = SecurityUtil.getCurrentUserLogin().orElse(null);
+        if (username == null) return new ArrayList<>();
+
+        User user = userRepository.findByEmail(username);
+        if (user == null || user.getCompany() == null) return new ArrayList<>();
+
+        Long companyId = user.getCompany().getId();
+        List<Job> jobs = jobRepository.findByCompany_Id(companyId);
+        if (jobs == null || jobs.isEmpty()) return new ArrayList<>();
+
+        List<vn.bxh.jobhunter.domain.response.JobSimpleDTO> result = new ArrayList<>();
+        for (Job j : jobs) {
+            result.add(vn.bxh.jobhunter.domain.response.JobSimpleDTO.from(j));
+        }
+        return result;
+    }
 }

@@ -12,4 +12,5 @@ import java.util.Optional;
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, Long> , JpaSpecificationExecutor<Permission> {
     Optional<Permission> findByName(String name);
+    Optional<Permission> findByApiPathAndMethod(String apiPath, String method);
 }

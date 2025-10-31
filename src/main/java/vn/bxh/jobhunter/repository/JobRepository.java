@@ -17,6 +17,7 @@ import java.util.Optional;
 public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificationExecutor<Job> {
     Optional<Job> findByName(String name);
     List<Job> findBySkillsIn(List<Skill> skillList);
+    List<Job> findByCompany_Id(Long companyId);
     @Query("SELECT new vn.bxh.jobhunter.domain.response.JobWithApplicantCountDTO(j.id, j.name, j.location, j.salary, j.quantity, j.active, COUNT(r)) " +
             "FROM Job j LEFT JOIN j.resumes r " +
             "WHERE j.company.id = :companyId " +

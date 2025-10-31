@@ -39,6 +39,8 @@ public class EmailService {
     private final SubscriberRepository subscriberRepository;
     private final JobRepository jobRepository;
 
+    private static final String FROM_EMAIL = "JobHunter@gmail.com";
+
 
     private final String[] subjects = {
             "Cậu rảnh không? Tớ có chuyện muốn hỏi",
@@ -64,6 +66,7 @@ public class EmailService {
         String text = messages[random.nextInt(messages.length)];
 
         SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(FROM_EMAIL);
         msg.setTo("trinhquangkhai2010@gmail.com"); // Thay đổi email người nhận nếu cần
         msg.setSubject(subject);
         msg.setText(text);
@@ -74,6 +77,7 @@ public class EmailService {
 
     public String sendConfirmationEmail() {
         SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(FROM_EMAIL);
         msg.setTo("haogolike1@gmail.com");
         msg.setSubject("Testing from Spring Boot");
         msg.setText("Hello World from Spring Boot Email");
@@ -88,6 +92,7 @@ public class EmailService {
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
                     isMultipart, StandardCharsets.UTF_8.name());
+            message.setFrom(FROM_EMAIL);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(content, isHtml);
@@ -107,6 +112,40 @@ public class EmailService {
         Context context = new Context();
         context.setVariable("name", username);
         context.setVariable("jobs", value);
+
+        String content = templateEngine.process(templateName, context);
+        this.sendEmailSync(to, subject, content, false, true);
+    }
+
+    public void sendResumeStatusEmail(String to,
+                                      String subject,
+                                      String candidateName,
+                                      String positionName,
+                                      String companyName,
+                                      String status) {
+        Context context = new Context();
+        context.setVariable("candidateName", candidateName);
+        context.setVariable("positionName", positionName);
+        context.setVariable("companyName", companyName);
+
+        String templateName;
+        String st = status == null ? "" : status.trim().toUpperCase();
+        switch (st) {
+            case "PENDING":
+                templateName = "resume-status-pending";
+                break;
+            case "REVIEWING":
+                templateName = "resume-status-reviewing";
+                break;
+            case "APPROVED":
+                templateName = "resume-status-approved";
+                break;
+            case "REJECTED":
+                templateName = "resume-status-rejected";
+                break;
+            default:
+                templateName = "resume-status"; // fallback đơn giản
+        }
 
         String content = templateEngine.process(templateName, context);
         this.sendEmailSync(to, subject, content, false, true);

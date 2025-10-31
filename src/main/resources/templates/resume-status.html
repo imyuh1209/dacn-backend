@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông báo trạng thái hồ sơ</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; }
+        .container { background-color: #ffffff; max-width: 600px; margin: auto; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { color: #111827; }
+        .status { font-weight: 600; color: #2563eb; }
+        .btn { display: inline-block; margin-top: 16px; background-color: #2563eb; color: #fff; padding: 10px 16px; text-decoration: none; border-radius: 6px; }
+        .muted { color: #6b7280; font-size: 13px; margin-top: 20px; }
+    </style>
+    </head>
+<body>
+<div class="container">
+    <h2>Xin chào <span th:text="${name}">bạn</span> 👋</h2>
+    <p>Trạng thái hồ sơ ứng tuyển cho vị trí <b th:text="${job}">công việc</b> hiện tại là: <span class="status" th:text="${status}">PENDING</span>.</p>
+
+    <p th:if="${status} == 'PENDING'">Chúng tôi đã nhận được hồ sơ của bạn và sẽ phản hồi sớm.</p>
+    <p th:if="${status} == 'REVIEWING'">Hồ sơ của bạn đang được đội ngũ tuyển dụng xem xét.</p>
+    <p th:if="${status} == 'APPROVED'">Chúc mừng! Hồ sơ của bạn đã được duyệt. Chúng tôi sẽ liên hệ để trao đổi thêm.</p>
+    <p th:if="${status} == 'REJECTED'">Rất tiếc, hồ sơ của bạn chưa phù hợp ở thời điểm hiện tại. Hãy theo dõi các vị trí khác.</p>
+
+    <a class="btn" href="https://jobhunter.local" target="_blank">Xem thêm công việc</a>
+    <p class="muted">Email được gửi tự động từ hệ thống JobHunter.</p>
+</div>
+</body>
+</html>

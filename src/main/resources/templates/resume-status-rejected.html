@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${companyName} + ' – Kết quả hồ sơ ứng tuyển của bạn'">Không được chọn</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; }
+        .container { background: #fff; max-width: 640px; margin: auto; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { color: #111827; }
+        p { color: #374151; line-height: 1.6; }
+        .footer { margin-top: 20px; color: #6b7280; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>Kính chào <span th:text="${candidateName}">Tên ứng viên</span>,</p>
+    <p>Cảm ơn bạn đã dành thời gian quan tâm và nộp hồ sơ ứng tuyển tại <b th:text="${companyName}">Tên công ty</b>.</p>
+    <p>Sau khi xem xét kỹ lưỡng, rất tiếc chúng tôi chưa thể tiếp tục hồ sơ của bạn cho vị trí <b th:text="${positionName}">Tên vị trí</b>.</p>
+    <p>Tuy nhiên, chúng tôi đánh giá cao tinh thần cầu tiến của bạn và hy vọng có cơ hội hợp tác trong những vị trí phù hợp khác trong tương lai.</p>
+    <p>Chúc bạn thành công trên con đường sự nghiệp sắp tới!</p>
+    <p>Trân trọng,<br/><b th:text="${companyName}">Tên công ty</b> – Phòng Nhân sự</p>
+    <div class="footer">Email được gửi tự động từ hệ thống JobHunter.</div>
+</div>
+</body>
+</html>

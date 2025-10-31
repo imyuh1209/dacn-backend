@@ -50,7 +50,19 @@ public class UserController {
 
     @PutMapping("/users")
     public ResponseEntity<ResUserDTO> updateNewUser(@RequestBody ReqUserUpdate userUpdate) {
+        // Nếu không truyền id, lấy id từ người dùng hiện tại
+        if (userUpdate.getId() == 0) {
+            String email = vn.bxh.jobhunter.util.SecurityUtil.getCurrentUserLogin().orElse("");
+            User current = this.userRepository.findByEmail(email);
+            if (current == null) {
+                throw new vn.bxh.jobhunter.util.error.IdInvalidException("Không xác định được người dùng hiện tại");
+            }
+            userUpdate.setId(current.getId());
+        }
         User user1 = this.userService.HandleUpdateUser(userUpdate);
+        if (user1 == null) {
+            throw new vn.bxh.jobhunter.util.error.IdInvalidException("Cập nhật không thành công!");
+        }
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(user1));
     }
 

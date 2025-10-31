@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import vn.bxh.jobhunter.domain.SavedJob;
 import vn.bxh.jobhunter.domain.response.SavedJobDTO;
 import vn.bxh.jobhunter.service.SavedJobService;
+import vn.bxh.jobhunter.util.anotation.ApiMessage;
 
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -18,6 +20,7 @@ public class SavedJobController {
 
     // Lưu job
     @PostMapping("/saved-jobs")
+    @ApiMessage("Lưu job thành công hoặc đã lưu trước đó")
     public ResponseEntity<SavedJobDTO> saveJob(@RequestParam("jobId") Long jobId) {
         SavedJob sj = service.saveJob(jobId);
         SavedJobDTO dto = toDTO(sj);
@@ -26,6 +29,7 @@ public class SavedJobController {
 
     // Danh sách job đã lưu của tôi
     @GetMapping("/saved-jobs")
+    @ApiMessage("Lấy danh sách job đã lưu của tôi")
     public ResponseEntity<List<SavedJobDTO>> listMySavedJobs() {
         List<SavedJobDTO> result = service.listMySavedJobs()
                 .stream().map(this::toDTO).toList();
@@ -34,10 +38,19 @@ public class SavedJobController {
 
     // Bỏ lưu theo savedId (hoặc bạn có thể dùng byJobId=true để xoá theo jobId)
     @DeleteMapping("/saved-jobs/{id}")
+    @ApiMessage("Bỏ lưu job thành công")
     public ResponseEntity<Void> removeSaved(@PathVariable Long id,
                                             @RequestParam(value = "byJobId", defaultValue = "false") boolean byJobId) {
         service.removeSavedJob(id, byJobId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(null);
+    }
+
+    // Kiểm tra một job đã được lưu bởi user hiện tại hay chưa
+    @GetMapping("/saved-jobs/is-saved")
+    @ApiMessage("Trạng thái job đã được lưu hay chưa")
+    public ResponseEntity<Map<String, Boolean>> isSaved(@RequestParam("jobId") Long jobId) {
+        boolean saved = service.isSaved(jobId);
+        return ResponseEntity.ok(Map.of("saved", saved));
     }
 
 

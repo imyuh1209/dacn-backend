@@ -54,18 +54,9 @@ public class JobController {
     }
 
     @GetMapping("/jobs/by-company")
-    public ResponseEntity<ResultPaginationDTO> getAllJobsByCurrentCompany(
-            @Filter Specification<Job> spec, Pageable pageable) {
-
-        Long companyId = this.jobService.getCurrentUserCompanyId();
-
-        // Combine spec với điều kiện lọc theo companyId
-        Specification<Job> companySpec = (root, query, cb) ->
-                cb.equal(root.get("company").get("id"), companyId);
-
-        Specification<Job> finalSpec = spec == null ? companySpec : spec.and(companySpec);
-
-        return ResponseEntity.ok(this.jobService.FindAllJobs(finalSpec, pageable));
+    public ResponseEntity<List<vn.bxh.jobhunter.domain.response.JobSimpleDTO>> getJobsByCurrentCompany() {
+        List<vn.bxh.jobhunter.domain.response.JobSimpleDTO> jobs = jobService.getJobsByCurrentCompanySimple();
+        return ResponseEntity.ok(jobs);
     }
 
     @DeleteMapping("/jobs/{id}")

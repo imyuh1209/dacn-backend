@@ -26,6 +26,7 @@ public class ResumeService {
     private final ResumeRepository resumeRepository;
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     public long countResumesByJob(Long jobId) {
         return resumeRepository.countByJobId(jobId);
@@ -144,6 +145,65 @@ public class ResumeService {
             ResResumeDTO.Job job = new ResResumeDTO.Job(resume.getJob().getId(),resume.getJob().getName());
             res.setJob(job);
         }
+        return res;
+    }
+
+    public vn.bxh.jobhunter.domain.response.ResEmailStatusDTO SendResumeStatusEmail(
+            vn.bxh.jobhunter.domain.request.ReqResumeStatusEmail req) {
+        Long resumeId = req.getResumeId();
+        String rawStatus = req.getStatus();
+
+        if (rawStatus == null || rawStatus.trim().isEmpty()) {
+            throw new IdInvalidException("Status is required");
+        }
+
+        String normalized = rawStatus.trim().toUpperCase();
+        vn.bxh.jobhunter.util.Constant.ResumeStateEnum state;
+        try {
+            state = vn.bxh.jobhunter.util.Constant.ResumeStateEnum.valueOf(normalized);
+        } catch (IllegalArgumentException ex) {
+            throw new IdInvalidException("Invalid status: " + rawStatus);
+        }
+
+        Resume resume = this.resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new IdInvalidException("Id is not valid!"));
+
+        String toEmail = resume.getEmail();
+        if (toEmail == null || toEmail.isBlank()) {
+            // fallback to user email if available
+            if (resume.getUser() != null) {
+                toEmail = resume.getUser().getEmail();
+            }
+        }
+
+        vn.bxh.jobhunter.domain.response.ResEmailStatusDTO res = new vn.bxh.jobhunter.domain.response.ResEmailStatusDTO();
+        if (toEmail == null || toEmail.isBlank()) {
+            res.setSent(false);
+            res.setSkipped(true);
+            return res;
+        }
+
+        String companyName = (resume.getJob() != null && resume.getJob().getCompany() != null)
+                ? resume.getJob().getCompany().getName() : "Công ty";
+        String subject = switch (state) {
+            case PENDING -> companyName + " – Xác nhận đã nhận được hồ sơ ứng tuyển của bạn";
+            case REVIEWING -> companyName + " – Hồ sơ của bạn đang được xem xét";
+            case APPROVED -> companyName + " – Chúc mừng! Bạn đã vượt qua vòng tuyển chọn hồ sơ";
+            case REJECTED -> companyName + " – Kết quả hồ sơ ứng tuyển của bạn";
+        };
+
+        String userName = resume.getUser() != null ? resume.getUser().getName() : toEmail;
+        String jobName = resume.getJob() != null ? resume.getJob().getName() : "Vị trí";
+
+        this.emailService.sendResumeStatusEmail(
+                toEmail,
+                subject,
+                userName,
+                jobName,
+                companyName,
+                state.name());
+        res.setSent(true);
+        res.setSkipped(false);
         return res;
     }
 

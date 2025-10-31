@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${companyName} + ' – Chúc mừng! Bạn đã vượt qua vòng tuyển chọn hồ sơ'">Đã được chấp nhận</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 20px; }
+        .container { background: #fff; max-width: 640px; margin: auto; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h2 { color: #111827; }
+        p { color: #374151; line-height: 1.6; }
+        .footer { margin-top: 20px; color: #6b7280; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>Kính chào <span th:text="${candidateName}">Tên ứng viên</span>,</p>
+    <p>Xin chúc mừng! Hồ sơ ứng tuyển của bạn cho vị trí <b th:text="${positionName}">Tên vị trí</b> tại <b th:text="${companyName}">Tên công ty</b> đã được chấp thuận qua vòng đánh giá hồ sơ.</p>
+    <p>Bộ phận tuyển dụng của chúng tôi sẽ sớm liên hệ để sắp xếp lịch phỏng vấn hoặc hướng dẫn các bước tiếp theo.</p>
+    <p>Cảm ơn bạn đã quan tâm đến cơ hội nghề nghiệp tại <b th:text="${companyName}">Tên công ty</b>.</p>
+    <p>Trân trọng,<br/><b th:text="${companyName}">Tên công ty</b> – Phòng Nhân sự</p>
+    <div class="footer">Email được gửi tự động từ hệ thống JobHunter.</div>
+</div>
+</body>
+</html>

@@ -15,12 +15,16 @@ import vn.bxh.jobhunter.domain.Resume;
 import vn.bxh.jobhunter.domain.User;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.domain.response.Resume.ResResumeDTO;
+import vn.bxh.jobhunter.domain.request.ReqResumeStatusEmail;
+import vn.bxh.jobhunter.domain.response.ResEmailStatusDTO;
 import vn.bxh.jobhunter.repository.ResumeRepository;
 import vn.bxh.jobhunter.repository.UserRepository;
 import vn.bxh.jobhunter.service.ResumeService;
 import vn.bxh.jobhunter.service.UserService;
 import vn.bxh.jobhunter.util.SecurityUtil;
 import vn.bxh.jobhunter.util.error.IdInvalidException;
+import vn.bxh.jobhunter.util.anotation.ApiMessage;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -96,5 +100,11 @@ public class ResumeController {
     public ResponseEntity<Long> countByJob(@PathVariable Long jobId) {
         long count = resumeService.countResumesByJob(jobId);
         return ResponseEntity.ok(count);
+    }
+
+    @PostMapping("/resumes/status-email")
+    @ApiMessage("Gửi email trạng thái hồ sơ")
+    public ResponseEntity<ResEmailStatusDTO> sendResumeStatusEmail(@Valid @RequestBody ReqResumeStatusEmail req) {
+        return ResponseEntity.ok(this.resumeService.SendResumeStatusEmail(req));
     }
 }
