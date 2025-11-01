@@ -153,4 +153,13 @@ public class UserService {
     public User FindByEmailAndRefreshToken(String email,String token){
         return this.userRepository.findByEmailAndRefreshToken(email, token);
     }
+
+    public User HandleChangePassword(String email, String encodedPassword) {
+        User user = this.FindUserByEmail(email);
+        if (user != null) {
+            user.setPassword(encodedPassword);
+            return this.userRepository.save(user);
+        }
+        return null;
+    }
 }

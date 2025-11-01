@@ -98,20 +98,23 @@ public class AuthController {
     @GetMapping("/auth/account")
     @ApiMessage("Fetch Account")
     public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount(){
-        String email = SecurityUtil.getCurrentUserLogin().isPresent()? SecurityUtil.getCurrentUserLogin().get():"";
-        User userDB = this.userService.FindUserByEmail(email);
-        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new vn.bxh.jobhunter.util.error.IdInvalidException("Not authenticated"));
 
-        if(userDB != null){
-            userLogin.setId(userDB.getId());
-            userLogin.setName(userDB.getName());
-            userLogin.setEmail(userDB.getEmail());
-            userLogin.setGender(userDB.getGender());
-            userLogin.setAddress(userDB.getAddress());
-            userLogin.setAge(userDB.getAge());
-            userLogin.setRole(userDB.getRole());
-            userLogin.setCompany(userDB.getCompany());
+        User userDB = this.userService.FindUserByEmail(email);
+        if (userDB == null) {
+            throw new vn.bxh.jobhunter.util.error.IdInvalidException("User not found");
         }
+
+        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+        userLogin.setId(userDB.getId());
+        userLogin.setName(userDB.getName());
+        userLogin.setEmail(userDB.getEmail());
+        userLogin.setGender(userDB.getGender());
+        userLogin.setAddress(userDB.getAddress());
+        userLogin.setAge(userDB.getAge());
+        userLogin.setRole(userDB.getRole());
+        userLogin.setCompany(userDB.getCompany());
         ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
         userGetAccount.setUser(userLogin);
         return ResponseEntity.ok(userGetAccount);
@@ -221,6 +224,29 @@ public class AuthController {
                 .ok()
                 .header(HttpHeaders.SET_COOKIE, deleteSpringCookie.toString())
                 .build();
+    }
+
+    @PostMapping("/auth/change-password")
+    @ApiMessage("Đổi mật khẩu thành công")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody vn.bxh.jobhunter.domain.request.ReqChangePasswordDTO req) {
+        String email = vn.bxh.jobhunter.util.SecurityUtil.getCurrentUserLogin().orElse("");
+        if (email.isBlank()) {
+            throw new vn.bxh.jobhunter.util.error.IdInvalidException("Không xác định được người dùng hiện tại");
+        }
+        vn.bxh.jobhunter.domain.User userDB = this.userService.FindUserByEmail(email);
+        if (userDB == null) {
+            throw new vn.bxh.jobhunter.util.error.IdInvalidException("Không tìm thấy người dùng");
+        }
+        if (!passwordEncoder.matches(req.getCurrentPassword(), userDB.getPassword())) {
+            throw new vn.bxh.jobhunter.util.error.IdInvalidException("Mật khẩu hiện tại không chính xác");
+        }
+        if (req.getNewPassword().equals(req.getCurrentPassword())) {
+            throw new vn.bxh.jobhunter.util.error.IdInvalidException("Mật khẩu mới phải khác mật khẩu hiện tại");
+        }
+
+        String encoded = passwordEncoder.encode(req.getNewPassword());
+        this.userService.HandleChangePassword(email, encoded);
+        return ResponseEntity.ok().build();
     }
 
 

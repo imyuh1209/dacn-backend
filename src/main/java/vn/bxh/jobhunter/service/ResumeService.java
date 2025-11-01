@@ -32,6 +32,16 @@ public class ResumeService {
         return resumeRepository.countByJobId(jobId);
     }
 
+    public boolean isApplied(Long jobId) {
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new IdInvalidException("Not authenticated"));
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new IdInvalidException("User not found");
+        }
+        return resumeRepository.existsByUser_IdAndJob_Id(user.getId(), jobId);
+    }
+
     public ResultPaginationDTO GetAllUser(Specification<Resume> spec, Pageable pageable){
         Page<Resume> pageResume = this.resumeRepository.findAll(spec, pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
@@ -142,7 +152,12 @@ public class ResumeService {
             res.setUser(user);
         }
         if(resume.getJob()!= null){
-            ResResumeDTO.Job job = new ResResumeDTO.Job(resume.getJob().getId(),resume.getJob().getName());
+            ResResumeDTO.Job job = new ResResumeDTO.Job();
+            job.setId(resume.getJob().getId());
+            job.setName(resume.getJob().getName());
+            if (resume.getJob().getCompany() != null) {
+                job.setCompanyName(resume.getJob().getCompany().getName());
+            }
             res.setJob(job);
         }
         return res;

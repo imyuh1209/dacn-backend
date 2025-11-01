@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import vn.bxh.jobhunter.domain.Company;
 import vn.bxh.jobhunter.domain.Job;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
+import vn.bxh.jobhunter.domain.response.ResCompanyDetailDTO;
+import vn.bxh.jobhunter.domain.response.JobSimpleDTO;
 import vn.bxh.jobhunter.repository.CompanyRepository;
 import vn.bxh.jobhunter.service.CompanyService;
 
@@ -35,8 +37,24 @@ public class CompanyController {
     }
 
     @GetMapping("/companies/{id}")
-    public ResponseEntity<Company> getCompany(@PathVariable long id){
-        return ResponseEntity.ok(this.companyService.FetchCompany(id));
+    public ResponseEntity<ResCompanyDetailDTO> getCompany(@PathVariable long id){
+        Company company = this.companyService.FetchCompany(id);
+        ResCompanyDetailDTO dto = new ResCompanyDetailDTO();
+        dto.setId(company.getId());
+        dto.setName(company.getName());
+        dto.setDescription(company.getDescription());
+        dto.setAddress(company.getAddress());
+        dto.setLogo(company.getLogo());
+
+        java.util.List<JobSimpleDTO> jobs = new java.util.ArrayList<>();
+        if (company.getJobs() != null) {
+            for (Job j : company.getJobs()) {
+                jobs.add(JobSimpleDTO.from(j));
+            }
+        }
+        dto.setJobs(jobs);
+
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/companies")

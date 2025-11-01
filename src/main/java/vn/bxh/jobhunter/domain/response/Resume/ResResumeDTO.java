@@ -3,6 +3,7 @@ package vn.bxh.jobhunter.domain.response.Resume;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import vn.bxh.jobhunter.util.Constant.ResumeStateEnum;
@@ -26,6 +27,7 @@ public class ResResumeDTO {
     @Getter
     @Setter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class User{
         private long id;
         private String name;
@@ -33,8 +35,10 @@ public class ResResumeDTO {
     @Getter
     @Setter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Job{
         private long id;
         private String name;
+        private String companyName;
     }
 }

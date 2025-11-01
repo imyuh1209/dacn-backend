@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.bxh.jobhunter.domain.*;
 import vn.bxh.jobhunter.domain.response.JobWithApplicantCountDTO;
+import vn.bxh.jobhunter.domain.response.ResJobDTO;
 import vn.bxh.jobhunter.domain.response.ResultPaginationDTO;
 import vn.bxh.jobhunter.repository.CompanyRepository;
 import vn.bxh.jobhunter.repository.JobRepository;
@@ -18,6 +19,7 @@ import vn.bxh.jobhunter.util.error.IdInvalidException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -64,16 +66,45 @@ public class JobService {
 
 
     public ResultPaginationDTO FindAllJobs(Specification<Job> spec, Pageable pageable){
-        Page<Job> page = this.jobRepository.findAll(spec,pageable);
+        Page<Job> pageJob = this.jobRepository.findAll(spec,pageable);
+        List<Job> jobs = pageJob.getContent();
+
+        List<ResJobDTO> resJobDTOs = jobs.stream().map(job -> {
+            ResJobDTO dto = new ResJobDTO();
+            dto.setId(job.getId());
+            dto.setName(job.getName());
+            dto.setLocation(job.getLocation());
+            dto.setSalary(job.getSalary());
+            dto.setQuantity(job.getQuantity());
+            dto.setLevel(job.getLevel());
+            dto.setDescription(job.getDescription());
+            dto.setStartDate(job.getStartDate());
+            dto.setEndDate(job.getEndDate());
+            dto.setActive(job.isActive());
+            dto.setCreatedAt(job.getCreatedAt());
+            dto.setUpdatedAt(job.getUpdatedAt());
+            if (job.getSkills() != null) {
+                dto.setSkills(job.getSkills().stream().map(Skill::getName).collect(Collectors.toList()));
+            }
+            if (job.getCompany() != null) {
+                ResJobDTO.ResCompanyDTO companyDTO = new ResJobDTO.ResCompanyDTO();
+                companyDTO.setId(job.getCompany().getId());
+                companyDTO.setName(job.getCompany().getName());
+                companyDTO.setLogo(job.getCompany().getLogo());
+                dto.setCompany(companyDTO);
+            }
+            return dto;
+        }).collect(Collectors.toList());
+
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta(
-                page.getNumber()+1,
-                page.getSize(),
-                page.getTotalPages(),
-                page.getTotalElements()
+                pageJob.getNumber()+1,
+                pageJob.getSize(),
+                pageJob.getTotalPages(),
+                pageJob.getTotalElements()
         );
         resultPaginationDTO.setMeta(meta);
-        resultPaginationDTO.setResult(page.getContent());
+        resultPaginationDTO.setResult(resJobDTOs);
         return resultPaginationDTO;
     }
 

@@ -10,7 +10,7 @@ public class SavedJobDTO {
     private Long jobId;
     private String jobName;
     private String companyName;
-    private String companyLogo;
+    private String companyLogo; 
     private String location;
     private Double salary;
     private String level;

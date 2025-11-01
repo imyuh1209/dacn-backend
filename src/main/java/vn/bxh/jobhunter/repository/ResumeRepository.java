@@ -14,4 +14,5 @@ public interface ResumeRepository extends JpaRepository<Resume,Long>, JpaSpecifi
     Optional<Resume> findByEmail(String email);
 
     long countByJobId(Long jobId);
+    boolean existsByUser_IdAndJob_Id(Long userId, Long jobId);
 }
