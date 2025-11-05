@@ -90,6 +90,18 @@ public class UserService {
             if (user.getAge() != null) newUpdate.setAge(user.getAge());
             if (user.getAddress() != null) newUpdate.setAddress(user.getAddress());
             if (user.getGender() != null) newUpdate.setGender(user.getGender());
+
+            // Cập nhật role: hỗ trợ cả roleId phẳng và role:{id}
+            Long roleId = null;
+            if (user.getRoleId() != null) {
+                roleId = user.getRoleId();
+            } else if (user.getRole() != null && user.getRole().getId() > 0) {
+                roleId = user.getRole().getId();
+            }
+            if (roleId != null) {
+                Optional<Role> roleOptional = this.roleRepository.findById(roleId);
+                roleOptional.ifPresent(newUpdate::setRole);
+            }
             return this.userRepository.save(newUpdate);
         } else {
             return null;

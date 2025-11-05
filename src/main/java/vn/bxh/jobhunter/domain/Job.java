@@ -23,6 +23,8 @@ public class Job {
     private String name;
     private String location;
     private double salary;
+    private Double salaryMin;
+    private Double salaryMax;
     private int quantity;
     @Enumerated(EnumType.STRING)
     private LevelEnum level;

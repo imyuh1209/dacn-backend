@@ -85,6 +85,8 @@ public class DatabaseInitializer implements CommandLineRunner {
             arr.add(new Permission("Delete a user", "/api/v1/users/{id}", "DELETE", "USERS"));
             arr.add(new Permission("Get a user by id", "/api/v1/users/{id}", "GET", "USERS"));
             arr.add(new Permission("Get users with pagination", "/api/v1/users", "GET", "USERS"));
+            // Current user info
+            arr.add(new Permission("Get current user", "/api/v1/users/me", "GET", "USERS"));
 
             arr.add(new Permission("Create a subscriber", "/api/v1/subscribers", "POST", "SUBSCRIBERS"));
             arr.add(new Permission("Update a subscriber", "/api/v1/subscribers", "PUT", "SUBSCRIBERS"));
@@ -113,6 +115,8 @@ public class DatabaseInitializer implements CommandLineRunner {
         Permission jobsByCompanyPerm = ensurePermission("Get jobs by current company", "/api/v1/jobs/by-company", "GET", "JOBS");
         // Ensure Update User permission exists
         Permission updateUserPerm = ensurePermission("Update a user", "/api/v1/users", "PUT", "USERS");
+        // Ensure Get current user permission exists
+        Permission getCurrentUserPerm = ensurePermission("Get current user", "/api/v1/users/me", "GET", "USERS");
         if (countRoles == 0) {
             List<Permission> allPermissions = this.permissionRepository.findAll();
 
@@ -139,6 +143,12 @@ public class DatabaseInitializer implements CommandLineRunner {
             if (!hasUpdateUser) {
                 userPerms.add(updateUserPerm);
             }
+            // Add Get current user permission so USER can view own account
+            boolean hasGetCurrentUser = userPerms.stream().anyMatch(p ->
+                    "/api/v1/users/me".equals(p.getApiPath()) && "GET".equalsIgnoreCase(p.getMethod()));
+            if (!hasGetCurrentUser) {
+                userPerms.add(getCurrentUserPerm);
+            }
             userRole.setPermissions(userPerms);
 
             this.roleRepository.save(userRole);
@@ -155,6 +165,12 @@ public class DatabaseInitializer implements CommandLineRunner {
                 "/api/v1/users".equals(p.getApiPath()) && "PUT".equalsIgnoreCase(p.getMethod()));
         if (!basicHasUpdateUser) {
             basicPerms.add(updateUserPerm);
+        }
+        // Ensure Get current user permission is included in USER basic permissions
+        boolean basicHasGetCurrentUser = basicPerms.stream().anyMatch(p ->
+                "/api/v1/users/me".equals(p.getApiPath()) && "GET".equalsIgnoreCase(p.getMethod()));
+        if (!basicHasGetCurrentUser) {
+            basicPerms.add(getCurrentUserPerm);
         }
         if (userRoleOpt.isPresent()) {
             Role userRole = userRoleOpt.get();

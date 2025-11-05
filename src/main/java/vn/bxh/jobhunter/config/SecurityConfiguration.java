@@ -37,7 +37,7 @@ public class SecurityConfiguration {
             "/",
             "/api/v1/auth/login", "/api/v1/auth/refresh", "/storage/**",
             "/api/v1/auth/register","/api/v1/email","/v3/api-docs/**",
-            "/swagger-ui/**","/api/v1/users",
+            "/swagger-ui/**",
             "/swagger-ui.html"
     };
 
@@ -55,6 +55,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(listApi).permitAll()
+                        // Nếu cần mở tạo mới user qua /api/v1/users (POST), cho phép cụ thể theo method
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/companies").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/jobs").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/skills").permitAll()// Trang chủ không cần login

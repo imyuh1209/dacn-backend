@@ -17,6 +17,14 @@ public class ResCompanyDetailDTO {
     private String description;
     private String address;
     private String logo; 
+    public String getLogoUrl() {
+        if (logo == null || logo.isEmpty()) return null;
+        try {
+            return "/storage/company/" + java.net.URLEncoder.encode(logo, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return "/storage/company/" + logo;
+        }
+    }
 
     private List<JobSimpleDTO> jobs; // danh sách job đơn giản của công ty
 }

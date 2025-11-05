@@ -25,4 +25,8 @@ public class ReqUserUpdate {
     @NotBlank(message = "Address cannot be empty!")
     private String address;
 
+    // Optional: hỗ trợ cập nhật role theo cả hai dạng roleId hoặc role:{id}
+    private Long roleId;
+    private vn.bxh.jobhunter.domain.Role role;
+
 }

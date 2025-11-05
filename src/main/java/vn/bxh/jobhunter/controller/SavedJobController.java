@@ -63,6 +63,8 @@ public class SavedJobController {
                 sj.getJob().getCompany() != null ? sj.getJob().getCompany().getLogo() : null,
                 sj.getJob().getLocation(),
                 sj.getJob().getSalary(),
+                sj.getJob().getSalaryMin(),
+                sj.getJob().getSalaryMax(),
                 sj.getJob().getLevel().name()
         );
     }

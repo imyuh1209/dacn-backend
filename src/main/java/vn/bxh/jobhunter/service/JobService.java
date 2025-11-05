@@ -75,6 +75,8 @@ public class JobService {
             dto.setName(job.getName());
             dto.setLocation(job.getLocation());
             dto.setSalary(job.getSalary());
+            dto.setSalaryMin(job.getSalaryMin());
+            dto.setSalaryMax(job.getSalaryMax());
             dto.setQuantity(job.getQuantity());
             dto.setLevel(job.getLevel());
             dto.setDescription(job.getDescription());
@@ -132,6 +134,14 @@ public class JobService {
                 company.ifPresent(job::setCompany);
             }
 
+            // Mặc định khoảng lương nếu không truyền min/max
+            if (job.getSalaryMin() == null) {
+                job.setSalaryMin(job.getSalary());
+            }
+            if (job.getSalaryMax() == null) {
+                job.setSalaryMax(job.getSalary());
+            }
+
             return this.jobRepository.save(job);
         }throw new IdInvalidException("Name is not valid!");
     }
@@ -149,6 +159,9 @@ public class JobService {
             newjob.setLevel(job.getLevel());
             newjob.setLocation(job.getLocation());
             newjob.setSalary(job.getSalary());
+            // cập nhật khoảng lương, fallback theo salary nếu null
+            newjob.setSalaryMin(job.getSalaryMin() != null ? job.getSalaryMin() : job.getSalary());
+            newjob.setSalaryMax(job.getSalaryMax() != null ? job.getSalaryMax() : job.getSalary());
             newjob.setSkills(job.getSkills());
             return this.jobRepository.save(newjob);
 

@@ -21,6 +21,7 @@ import vn.bxh.jobhunter.repository.UserRepository;
 import vn.bxh.jobhunter.service.UserService;
 import vn.bxh.jobhunter.util.anotation.ApiMessage;
 import vn.bxh.jobhunter.util.error.IdInvalidException;
+import vn.bxh.jobhunter.util.SecurityUtil;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -64,6 +65,18 @@ public class UserController {
             throw new vn.bxh.jobhunter.util.error.IdInvalidException("Cập nhật không thành công!");
         }
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(user1));
+    }
+
+    @GetMapping("/users/me")
+    @ApiMessage("Lấy thông tin người dùng hiện tại")
+    public ResponseEntity<ResUserDTO> getMe() {
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new vn.bxh.jobhunter.util.error.IdInvalidException("Không xác định được người dùng hiện tại"));
+        User current = this.userRepository.findByEmail(email);
+        if (current == null) {
+            throw new vn.bxh.jobhunter.util.error.IdInvalidException("Không tìm thấy người dùng");
+        }
+        return ResponseEntity.ok(this.userService.convertToResUserDTO(current));
     }
 
     @DeleteMapping("/users/{id}")

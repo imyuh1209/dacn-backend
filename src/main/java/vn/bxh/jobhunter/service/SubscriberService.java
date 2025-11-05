@@ -39,6 +39,10 @@ public class SubscriberService {
         }throw new IdInvalidException("Name is not valid!");
     }
 
+    public List<Subscriber> GetAllSubscribers() {
+        return this.subscriberRepository.findAll();
+    }
+
     public Subscriber UpdateSubscriber(Subscriber subscriber){
         Optional<Subscriber> subscriberOptional = this.subscriberRepository.findById(subscriber.getId());
         if(subscriberOptional.isPresent()){
@@ -91,6 +95,6 @@ public class SubscriberService {
     }
 
     public Subscriber findByEmail(String email) {
-        return this.subscriberRepository.findByEmail(email).get();
+        return this.subscriberRepository.findByEmail(email).orElse(null);
     }
 }
