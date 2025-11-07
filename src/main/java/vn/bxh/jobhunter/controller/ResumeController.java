@@ -91,9 +91,21 @@ public class ResumeController {
 
 
 
-    @PostMapping("/resumes/by-user")
-    public ResponseEntity<ResultPaginationDTO> GetAllByUser(Pageable pageable){
+    // Hỗ trợ cả GET để FE lấy lịch sử ứng tuyển
+    @GetMapping("/resumes/by-user")
+    public ResponseEntity<ResultPaginationDTO> GetAllByUserGet(Pageable pageable){
         return ResponseEntity.ok(this.resumeService.GetAllByUser(pageable));
+    }
+
+    @PostMapping("/resumes/by-user")
+    public ResponseEntity<ResultPaginationDTO> GetAllByUserPost(Pageable pageable){
+        return ResponseEntity.ok(this.resumeService.GetAllByUser(pageable));
+    }
+
+    // Chỉ lấy "CV đã tải lên" (không gắn job) của user hiện tại
+    @GetMapping("/resumes/my-uploads")
+    public ResponseEntity<ResultPaginationDTO> getMyUploads(Pageable pageable) {
+        return ResponseEntity.ok(this.resumeService.GetMyUploads(pageable));
     }
 
     @GetMapping("resumes/count-by-job/{jobId}")

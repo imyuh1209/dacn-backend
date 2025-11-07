@@ -57,23 +57,19 @@ public class ResumeService {
     }
 
     public ResultPaginationDTO GetAllByUser(Pageable pageable){
-        String email = SecurityUtil.getCurrentUserLogin().isPresent()?SecurityUtil.getCurrentUserLogin().get():"";
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
         User user = this.userRepository.findByEmail(email);
-        Page<Resume> pageResume = this.resumeRepository.findAll(pageable);
-        List<Resume> listResumeOfUser =new ArrayList<>();
-        for(Resume re : pageResume.getContent()){
-            if(re.getUser()!=null){
-                if(re.getUser().equals(user)){
-                    listResumeOfUser.add(re);
-                }
-            }
+        if (user == null) {
+            throw new IdInvalidException("User not found");
         }
+
+        Page<Resume> pageResume = this.resumeRepository.findAllByUser_Id(user.getId(), pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta(
                 pageResume.getNumber()+1, pageResume.getSize(), pageResume.getTotalPages(), pageResume.getTotalElements());
         resultPaginationDTO.setMeta(meta);
         List<ResResumeDTO> resResumeDTOS = new ArrayList<>();
-        for (Resume resume : listResumeOfUser){
+        for (Resume resume : pageResume.getContent()){
             resResumeDTOS.add(this.ConvertToResResumeDTO(resume));
         }
         resultPaginationDTO.setResult(resResumeDTOS);
@@ -82,6 +78,26 @@ public class ResumeService {
 
     public ResultPaginationDTO GetAllResume(Specification<Resume> spec, Pageable pageable){
         Page<Resume> pageResume = this.resumeRepository.findAll(spec, pageable);
+        ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta(
+                pageResume.getNumber()+1, pageResume.getSize(), pageResume.getTotalPages(), pageResume.getTotalElements());
+        resultPaginationDTO.setMeta(meta);
+        List<ResResumeDTO> resResumeDTOS = new ArrayList<>();
+        for (Resume resume : pageResume.getContent()){
+            resResumeDTOS.add(this.ConvertToResResumeDTO(resume));
+        }
+        resultPaginationDTO.setResult(resResumeDTOS);
+        return resultPaginationDTO;
+    }
+
+    public ResultPaginationDTO GetMyUploads(Pageable pageable){
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        User user = this.userRepository.findByEmail(email);
+        if (user == null) {
+            throw new IdInvalidException("User not found");
+        }
+
+        Page<Resume> pageResume = this.resumeRepository.findAllByUser_IdAndJobIsNull(user.getId(), pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta(
                 pageResume.getNumber()+1, pageResume.getSize(), pageResume.getTotalPages(), pageResume.getTotalElements());
@@ -127,13 +143,28 @@ public class ResumeService {
     }
 
     public Resume HandleCreateResume(Resume resume){
-        if(resume.getUser()==null || resume.getJob()==null){
-            throw new IdInvalidException("User or job must not be left empty.");
+        // Tạo resume cho CV tải lên hoặc ứng tuyển.
+        // Không tin cậy user/email từ client: lấy user hiện tại từ JWT.
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        if (email == null || email.isBlank()) {
+            throw new IdInvalidException("Cannot determine current user from token");
         }
-        Optional<Job> job = this.jobRepository.findById(resume.getJob().getId());
-        Optional<User> user = this.userRepository.findById(resume.getUser().getId());
-        resume.setJob(job.orElse(null));
-        resume.setUser(user.orElse(null));
+        User currentUser = this.userRepository.findByEmail(email);
+        if (currentUser == null) {
+            throw new IdInvalidException("User not found");
+        }
+        resume.setUser(currentUser);
+        // Chuẩn hóa email lưu trong hồ sơ theo user hiện tại
+        resume.setEmail(currentUser.getEmail());
+
+        // Nếu có jobId, chuẩn hóa entity Job; nếu không, giữ null để phân biệt CV tải lên
+        if (resume.getJob() != null && resume.getJob().getId() > 0) {
+            Optional<Job> job = this.jobRepository.findById(resume.getJob().getId());
+            resume.setJob(job.orElse(null));
+        } else {
+            resume.setJob(null);
+        }
+
         return this.resumeRepository.save(resume);
     }
 

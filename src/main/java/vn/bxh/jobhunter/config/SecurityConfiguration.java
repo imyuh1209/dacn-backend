@@ -57,7 +57,9 @@ public class SecurityConfiguration {
                         .requestMatchers(listApi).permitAll()
                         // Nếu cần mở tạo mới user qua /api/v1/users (POST), cho phép cụ thể theo method
                         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/companies").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/banners/home").permitAll()
+                        // Mở public toàn bộ endpoint GET công ty (bao gồm featured, detail, jobs)
+                        .requestMatchers(HttpMethod.GET,"/api/v1/companies/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/jobs").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/v1/skills").permitAll()// Trang chủ không cần login
                         .anyRequest().authenticated())

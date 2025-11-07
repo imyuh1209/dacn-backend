@@ -15,4 +15,6 @@ public interface ResumeRepository extends JpaRepository<Resume,Long>, JpaSpecifi
 
     long countByJobId(Long jobId);
     boolean existsByUser_IdAndJob_Id(Long userId, Long jobId);
+    org.springframework.data.domain.Page<Resume> findAllByUser_Id(Long userId, org.springframework.data.domain.Pageable pageable);
+    org.springframework.data.domain.Page<Resume> findAllByUser_IdAndJobIsNull(Long userId, org.springframework.data.domain.Pageable pageable);
 }

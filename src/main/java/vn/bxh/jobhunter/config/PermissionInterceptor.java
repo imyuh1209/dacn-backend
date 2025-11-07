@@ -35,7 +35,8 @@ public class PermissionInterceptor implements HandlerInterceptor {
         List<String> whiteListGetApis = List.of(
                 "/api/v1/companies",
                 "/api/v1/jobs",
-                "/api/v1/skills"
+                "/api/v1/skills",
+                "/api/v1/banners/home"
         );
 
         if ("GET".equalsIgnoreCase(httpMethod) && whiteListGetApis.contains(path)) {

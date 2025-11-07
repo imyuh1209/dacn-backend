@@ -36,6 +36,14 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.companyService.FetchAllCompanies(spec, pageable));
     }
 
+    // Featured companies for homepage
+    @GetMapping("/companies/featured")
+    public ResponseEntity<java.util.List<vn.bxh.jobhunter.domain.response.ResCompanyDTO>> getFeaturedCompanies(
+            @RequestParam(name = "limit", required = false, defaultValue = "8") int limit
+    ){
+        return ResponseEntity.ok(this.companyService.getFeaturedCompanies(limit));
+    }
+
     @GetMapping("/companies/{id}")
     public ResponseEntity<ResCompanyDetailDTO> getCompany(@PathVariable long id){
         Company company = this.companyService.FetchCompany(id);

@@ -103,6 +103,13 @@ public class DatabaseInitializer implements CommandLineRunner {
             arr.add(new Permission("Delete a saved job by id", "/api/v1/saved-jobs/{id}", "DELETE", "SAVED_JOBS"));
             arr.add(new Permission("Check job saved status", "/api/v1/saved-jobs/is-saved", "GET", "SAVED_JOBS"));
 
+            // Banner permissions (CRUD + listing)
+            arr.add(new Permission("Create a banner", "/api/v1/banners", "POST", "BANNERS"));
+            arr.add(new Permission("Update a banner", "/api/v1/banners", "PUT", "BANNERS"));
+            arr.add(new Permission("Delete a banner", "/api/v1/banners/{id}", "DELETE", "BANNERS"));
+            arr.add(new Permission("Get a banner by id", "/api/v1/banners/{id}", "GET", "BANNERS"));
+            arr.add(new Permission("Get banners with pagination", "/api/v1/banners", "GET", "BANNERS"));
+
             permissionRepository.saveAll(arr);
         }
 
@@ -113,6 +120,12 @@ public class DatabaseInitializer implements CommandLineRunner {
         Permission isSavedPerm = ensurePermission("Check job saved status", "/api/v1/saved-jobs/is-saved", "GET", "SAVED_JOBS");
         Permission resumeStatusEmailPerm = ensurePermission("Send resume status email", "/api/v1/resumes/status-email", "POST", "RESUMES");
         Permission jobsByCompanyPerm = ensurePermission("Get jobs by current company", "/api/v1/jobs/by-company", "GET", "JOBS");
+        // Ensure Banner permissions exist
+        Permission bannerCreatePerm = ensurePermission("Create a banner", "/api/v1/banners", "POST", "BANNERS");
+        Permission bannerUpdatePerm = ensurePermission("Update a banner", "/api/v1/banners", "PUT", "BANNERS");
+        Permission bannerDeletePerm = ensurePermission("Delete a banner", "/api/v1/banners/{id}", "DELETE", "BANNERS");
+        Permission bannerGetByIdPerm = ensurePermission("Get a banner by id", "/api/v1/banners/{id}", "GET", "BANNERS");
+        Permission bannerListPerm = ensurePermission("Get banners with pagination", "/api/v1/banners", "GET", "BANNERS");
         // Ensure Update User permission exists
         Permission updateUserPerm = ensurePermission("Update a user", "/api/v1/users", "PUT", "USERS");
         // Ensure Get current user permission exists
@@ -149,6 +162,17 @@ public class DatabaseInitializer implements CommandLineRunner {
             if (!hasGetCurrentUser) {
                 userPerms.add(getCurrentUserPerm);
             }
+            // Allow USER to view banners list and detail
+            boolean hasBannerList = userPerms.stream().anyMatch(p ->
+                    "/api/v1/banners".equals(p.getApiPath()) && "GET".equalsIgnoreCase(p.getMethod()));
+            if (!hasBannerList) {
+                userPerms.add(bannerListPerm);
+            }
+            boolean hasBannerGetById = userPerms.stream().anyMatch(p ->
+                    "/api/v1/banners/{id}".equals(p.getApiPath()) && "GET".equalsIgnoreCase(p.getMethod()));
+            if (!hasBannerGetById) {
+                userPerms.add(bannerGetByIdPerm);
+            }
             userRole.setPermissions(userPerms);
 
             this.roleRepository.save(userRole);
@@ -171,6 +195,17 @@ public class DatabaseInitializer implements CommandLineRunner {
                 "/api/v1/users/me".equals(p.getApiPath()) && "GET".equalsIgnoreCase(p.getMethod()));
         if (!basicHasGetCurrentUser) {
             basicPerms.add(getCurrentUserPerm);
+        }
+        // Ensure USER basic permissions include viewing banners
+        boolean basicHasBannerList = basicPerms.stream().anyMatch(p ->
+                "/api/v1/banners".equals(p.getApiPath()) && "GET".equalsIgnoreCase(p.getMethod()));
+        if (!basicHasBannerList) {
+            basicPerms.add(bannerListPerm);
+        }
+        boolean basicHasBannerGetById = basicPerms.stream().anyMatch(p ->
+                "/api/v1/banners/{id}".equals(p.getApiPath()) && "GET".equalsIgnoreCase(p.getMethod()));
+        if (!basicHasBannerGetById) {
+            basicPerms.add(bannerGetByIdPerm);
         }
         if (userRoleOpt.isPresent()) {
             Role userRole = userRoleOpt.get();

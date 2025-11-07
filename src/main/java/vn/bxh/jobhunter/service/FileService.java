@@ -37,8 +37,9 @@ public class FileService {
 
     public String store(MultipartFile file, String folder) throws URISyntaxException,
             IOException {
-        // create unique filename
-        String finalName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
+        // create unique filename with sanitized original name
+        String original = sanitizeFilename(file.getOriginalFilename());
+        String finalName = System.currentTimeMillis() + "-" + original;
         URI uri = new URI(baseUri + folder + "/" + finalName);
         Path path = Paths.get(uri);
         try (InputStream inputStream = file.getInputStream()) {
@@ -46,6 +47,15 @@ public class FileService {
                     StandardCopyOption.REPLACE_EXISTING);
         }
         return finalName;
+    }
+
+    private String sanitizeFilename(String name) {
+        if (name == null) return "file";
+        // Loại bỏ ký tự nguy hiểm và chuẩn hóa khoảng trắng
+        String cleaned = name.replaceAll("[\\\\/:*?\"<>|]", "_");
+        cleaned = cleaned.trim();
+        // Tránh tên rỗng
+        return cleaned.isEmpty() ? "file" : cleaned;
     }
 
     public long getFileLength(String fileName, String folder) throws URISyntaxException {

@@ -22,5 +22,12 @@ public class ResCompanyDTO {
             return "/storage/company/" + logo;
         }
     }
+
+    // Alias bổ sung để app mobile linh hoạt đọc khóa khác nhau
+    @com.fasterxml.jackson.annotation.JsonProperty("logoURL")
+    public String getLogoURLPascal() { return getLogoUrl(); }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("logo_url")
+    public String getLogoUrlSnake() { return getLogoUrl(); }
 }
 

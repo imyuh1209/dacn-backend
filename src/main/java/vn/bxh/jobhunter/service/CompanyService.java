@@ -76,6 +76,24 @@ public class CompanyService {
         return resultPaginationDTO;
     }
 
+    // Featured companies: có logo, lấy theo giới hạn và sắp xếp mới nhất
+    public List<ResCompanyDTO> getFeaturedCompanies(int limit) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, Math.max(1, limit), org.springframework.data.domain.Sort.by("id").descending());
+        org.springframework.data.domain.Page<Company> page = this.companyRepository.findByLogoIsNotNull(pageable);
+        List<Company> companies = page.getContent();
+        List<ResCompanyDTO> result = new ArrayList<>();
+        for (Company company : companies) {
+            ResCompanyDTO res = new ResCompanyDTO();
+            res.setId(company.getId());
+            res.setName(company.getName());
+            res.setDescription(company.getDescription());
+            res.setAddress(company.getAddress());
+            res.setLogo(company.getLogo());
+            result.add(res);
+        }
+        return result;
+    }
+
 
 
     public void deleteById(Long id){

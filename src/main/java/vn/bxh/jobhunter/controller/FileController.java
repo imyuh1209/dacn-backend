@@ -40,12 +40,32 @@ public class FileController {
         if (file == null || file.isEmpty() ){
             throw new FileInvalidException("File dose not exist!");
         }
-
         String fileName = file.getOriginalFilename();
-        List<String> allowedExtensions = Arrays.asList("pdf", "jpg", "jpeg", "png", "doc", "docx");
-        boolean isValid = allowedExtensions.stream().anyMatch(item->fileName.toLowerCase().endsWith(item));
-        if(!isValid){
-            throw new FileInvalidException("Invalid file extension. Only allow "+allowedExtensions.toString());
+        // Conditional validation: for banner folder, restrict to image MIME and size < 3MB
+        if ("banner".equalsIgnoreCase(folder)) {
+            String contentType = file.getContentType() != null ? file.getContentType().toLowerCase() : "";
+            List<String> allowedMimes = Arrays.asList("image/jpeg", "image/png", "image/webp");
+            boolean mimeOk = allowedMimes.stream().anyMatch(contentType::contains);
+            if (!mimeOk) {
+                throw new FileInvalidException("Invalid MIME type for banner. Only allow " + allowedMimes);
+            }
+            long maxBytes = 3 * 1024 * 1024; // 3MB
+            if (file.getSize() > maxBytes) {
+                throw new FileInvalidException("Banner image too large. Max 3MB");
+            }
+        } else {
+            List<String> allowedExtensions = Arrays.asList("pdf", "jpg", "jpeg", "png", "doc", "docx");
+            boolean isValid = allowedExtensions.stream().anyMatch(item->fileName.toLowerCase().endsWith(item));
+            if(!isValid){
+                throw new FileInvalidException("Invalid file extension. Only allow "+allowedExtensions.toString());
+            }
+            // Giới hạn kích thước file cho resume: <= 5MB
+            if ("resume".equalsIgnoreCase(folder)) {
+                long maxBytes = 5 * 1024 * 1024; // 5MB
+                if (file.getSize() > maxBytes) {
+                    throw new FileInvalidException("Resume file too large. Max 5MB");
+                }
+            }
         }
         //create folder if not exist
         this.fileService.createDirector(baseUri+folder);
