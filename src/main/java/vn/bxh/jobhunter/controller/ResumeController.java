@@ -71,6 +71,10 @@ public class ResumeController {
 
         Specification<Resume> finalSpec = spec;
 
+        // Mặc định luôn lọc bỏ các Resume có job = null (CV cá nhân) khỏi danh sách quản lý
+        Specification<Resume> jobNotNullSpec = (root, query, cb) -> cb.isNotNull(root.get("job"));
+        finalSpec = (finalSpec == null) ? jobNotNullSpec : finalSpec.and(jobNotNullSpec);
+
         if (currentUser != null && currentUser.getCompany() != null) {
             List<Job> companyJobs = currentUser.getCompany().getJobs();
             if (companyJobs != null && !companyJobs.isEmpty()) {
@@ -81,7 +85,7 @@ public class ResumeController {
                 // ✅ Sử dụng Specification viết tay
                 Specification<Resume> jobInSpec = (root, query, cb) -> root.get("job").get("id").in(arrJobIds);
 
-                finalSpec = (spec == null) ? jobInSpec : jobInSpec.and(spec);
+                finalSpec = finalSpec.and(jobInSpec);
             }
         }
 

@@ -16,6 +16,7 @@ import vn.bxh.jobhunter.util.error.IdInvalidException;
 
 import java.util.List;
 
+@Component
 public class PermissionInterceptor implements HandlerInterceptor {
     @Autowired
     UserRepository userRepository;
@@ -26,10 +27,25 @@ public class PermissionInterceptor implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response, Object handler)
             throws Exception {
-
         String path = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         String requestURI = request.getRequestURI();
         String httpMethod = request.getMethod();
+
+        // Check whitelist for Auth endpoints (login, register, forgot-password, etc.)
+        List<String> whiteListAuth = List.of(
+                "/api/v1/auth/login",
+                "/api/v1/auth/refresh",
+                "/api/v1/auth/register",
+                "/api/v1/auth/forgot-password",
+                "/api/v1/auth/reset-password"
+        );
+        if (whiteListAuth.contains(path)) {
+            return true;
+        }
+
+        if (path != null && path.startsWith("/api/v1/notifications")) {
+            return true;
+        }
 
         // Các API cho phép truy cập không cần kiểm tra quyền với GET
         List<String> whiteListGetApis = List.of(

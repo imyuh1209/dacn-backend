@@ -27,6 +27,7 @@ public class ResumeService {
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     public long countResumesByJob(Long jobId) {
         return resumeRepository.countByJobId(jobId);
@@ -63,7 +64,7 @@ public class ResumeService {
             throw new IdInvalidException("User not found");
         }
 
-        Page<Resume> pageResume = this.resumeRepository.findAllByUser_Id(user.getId(), pageable);
+        Page<Resume> pageResume = this.resumeRepository.findAllByUser_IdAndJobIsNotNull(user.getId(), pageable);
         ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta(
                 pageResume.getNumber()+1, pageResume.getSize(), pageResume.getTotalPages(), pageResume.getTotalElements());
@@ -132,11 +133,40 @@ public class ResumeService {
         Optional<Resume> resumeOptional = this.resumeRepository.findById(resume.getId());
         if(resumeOptional.isPresent()){
             Resume resumeUpdate = resumeOptional.get();
+            vn.bxh.jobhunter.util.Constant.ResumeStateEnum oldStatus = resumeUpdate.getStatus();
+
             if(resume.getUser()!=null){
                 resumeUpdate.setUser(resume.getUser());
             }
             resumeUpdate.setStatus(resume.getStatus());
-            return this.resumeRepository.save(resumeUpdate);
+            Resume savedResume = this.resumeRepository.save(resumeUpdate);
+
+            // Notify if status changed
+            if (resume.getStatus() != null && !resume.getStatus().equals(oldStatus)) {
+                String candidateEmail = savedResume.getEmail();
+                if (candidateEmail == null && savedResume.getUser() != null) {
+                    candidateEmail = savedResume.getUser().getEmail();
+                }
+
+                if (candidateEmail != null) {
+                    String jobName = (savedResume.getJob() != null) ? savedResume.getJob().getName() : "Unknown Job";
+                    String companyName = (savedResume.getJob() != null && savedResume.getJob().getCompany() != null)
+                            ? savedResume.getJob().getCompany().getName() : "Company";
+
+                    // Gửi email thông báo trạng thái hồ sơ (đã có từ trước)
+                    // (Đã implement trong ResumeController gọi sendResumeStatusEmail)
+                    // Còn notification nội bộ: hiện tại hệ thống chỉ hỗ trợ thông báo broadcast từ Admin
+                    // nên tạm thời comment phần tạo notification cá nhân.
+                    /*
+                    this.notificationService.createNotification(
+                            "Cập nhật trạng thái hồ sơ",
+                            "Hồ sơ ứng tuyển của bạn cho vị trí " + jobName + " tại " + companyName + " đã được cập nhật sang trạng thái: " + savedResume.getStatus(),
+                            candidateEmail
+                    );
+                    */
+                }
+            }
+            return savedResume;
         }else{
             throw new IdInvalidException("Id is not valid!");
         }
@@ -165,7 +195,26 @@ public class ResumeService {
             resume.setJob(null);
         }
 
-        return this.resumeRepository.save(resume);
+        Resume savedResume = this.resumeRepository.save(resume);
+
+        // Notify Recruiter
+        if (savedResume.getJob() != null) {
+            Job job = savedResume.getJob();
+            if (job.getCreatedBy() != null && !job.getCreatedBy().isEmpty()) {
+                String recruiterEmail = job.getCreatedBy();
+                String candidateName = currentUser.getName();
+
+                /* Tạm thời comment do chuyển sang notification hệ thống
+                this.notificationService.createNotification(
+                        "Hồ sơ ứng tuyển mới",
+                        "Ứng viên " + candidateName + " đã ứng tuyển vào vị trí " + job.getName(),
+                        recruiterEmail
+                );
+                */
+            }
+        }
+
+        return savedResume;
     }
 
     public ResResumeDTO ConvertToResResumeDTO(Resume resume){

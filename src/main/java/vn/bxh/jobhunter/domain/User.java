@@ -42,6 +42,9 @@ public class User {
     private String address;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String forgotPasswordToken;
+    private Instant forgotPasswordTokenExpiry;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;

@@ -92,12 +92,12 @@ public class EmailService {
         try {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
                     isMultipart, StandardCharsets.UTF_8.name());
-            message.setFrom(FROM_EMAIL);
+            message.setFrom("haogolike1@gmail.com", "JobHunter");
             message.setTo(to);
             message.setSubject(subject);
             message.setText(content, isHtml);
             this.javaMailSender.send(mimeMessage);
-        } catch (MailException | MessagingException e) {
+        } catch (MailException | MessagingException | java.io.UnsupportedEncodingException e) {
             System.out.println("ERROR SEND EMAIL: " + e);
         }
     }
@@ -117,6 +117,7 @@ public class EmailService {
         this.sendEmailSync(to, subject, content, false, true);
     }
 
+    @Async
     public void sendResumeStatusEmail(String to,
                                       String subject,
                                       String candidateName,
@@ -151,5 +152,16 @@ public class EmailService {
         this.sendEmailSync(to, subject, content, false, true);
     }
 
+    @Async
+    public void sendForgotPasswordEmail(String to, String name, String token) {
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("token", token);
+        // Assuming the frontend runs on localhost:5173
+        String resetLink = "http://localhost:5173/reset-password?token=" + token;
+        context.setVariable("resetLink", resetLink);
 
+        String content = templateEngine.process("forgot-password", context);
+        this.sendEmailSync(to, "JobHunter - Yêu cầu đặt lại mật khẩu", content, false, true);
+    }
 }

@@ -110,6 +110,9 @@ public class DatabaseInitializer implements CommandLineRunner {
             arr.add(new Permission("Get a banner by id", "/api/v1/banners/{id}", "GET", "BANNERS"));
             arr.add(new Permission("Get banners with pagination", "/api/v1/banners", "GET", "BANNERS"));
 
+            // Job Alert permissions (tham khảo, endpoint đang mở public)
+            arr.add(new Permission("Create a job alert", "/api/v1/job-alerts", "POST", "JOB_ALERTS"));
+
             permissionRepository.saveAll(arr);
         }
 
@@ -126,6 +129,8 @@ public class DatabaseInitializer implements CommandLineRunner {
         Permission bannerDeletePerm = ensurePermission("Delete a banner", "/api/v1/banners/{id}", "DELETE", "BANNERS");
         Permission bannerGetByIdPerm = ensurePermission("Get a banner by id", "/api/v1/banners/{id}", "GET", "BANNERS");
         Permission bannerListPerm = ensurePermission("Get banners with pagination", "/api/v1/banners", "GET", "BANNERS");
+        // Ensure Job Alert create permission exists
+        Permission jobAlertCreatePerm = ensurePermission("Create a job alert", "/api/v1/job-alerts", "POST", "JOB_ALERTS");
         // Ensure Update User permission exists
         Permission updateUserPerm = ensurePermission("Update a user", "/api/v1/users", "PUT", "USERS");
         // Ensure Get current user permission exists

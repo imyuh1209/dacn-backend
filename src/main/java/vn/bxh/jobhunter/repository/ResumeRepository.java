@@ -17,4 +17,6 @@ public interface ResumeRepository extends JpaRepository<Resume,Long>, JpaSpecifi
     boolean existsByUser_IdAndJob_Id(Long userId, Long jobId);
     org.springframework.data.domain.Page<Resume> findAllByUser_Id(Long userId, org.springframework.data.domain.Pageable pageable);
     org.springframework.data.domain.Page<Resume> findAllByUser_IdAndJobIsNull(Long userId, org.springframework.data.domain.Pageable pageable);
+    @org.springframework.data.jpa.repository.Query("SELECT r FROM Resume r WHERE r.user.id = :userId AND r.job IS NOT NULL")
+    org.springframework.data.domain.Page<Resume> findAllByUser_IdAndJobIsNotNull(Long userId, org.springframework.data.domain.Pageable pageable);
 }

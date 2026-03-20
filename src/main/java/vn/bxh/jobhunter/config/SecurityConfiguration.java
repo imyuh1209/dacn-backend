@@ -38,7 +38,10 @@ public class SecurityConfiguration {
             "/api/v1/auth/login", "/api/v1/auth/refresh", "/storage/**",
             "/api/v1/auth/register","/api/v1/email","/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/error",
+            "/api/v1/auth/forgot-password",
+            "/api/v1/auth/reset-password"
     };
 
 
@@ -55,8 +58,16 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(listApi).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/forgot-password", "/api/v1/auth/reset-password").permitAll()
                         // Nếu cần mở tạo mới user qua /api/v1/users (POST), cho phép cụ thể theo method
                         .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+                        // Mở tạo Job Alert public để phù hợp form web
+                        .requestMatchers(HttpMethod.POST, "/api/v1/job-alerts").permitAll()
+                        // Mở xem danh sách Job Alerts theo email/public
+                        .requestMatchers(HttpMethod.GET, "/api/v1/job-alerts").permitAll()
+                        // Đăng nhập bằng Google (public)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/google").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/google/inspect").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/banners/home").permitAll()
                         // Mở public toàn bộ endpoint GET công ty (bao gồm featured, detail, jobs)
                         .requestMatchers(HttpMethod.GET,"/api/v1/companies/**").permitAll()

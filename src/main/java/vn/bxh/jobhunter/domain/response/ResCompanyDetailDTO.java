@@ -26,5 +26,15 @@ public class ResCompanyDetailDTO {
         }
     }
 
+    // Alias bổ sung để app mobile linh hoạt đọc khóa khác nhau
+    @com.fasterxml.jackson.annotation.JsonProperty("logoURL")
+    public String getLogoURLPascal() { return getLogoUrl(); }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("logo_url")
+    public String getLogoUrlSnake() { return getLogoUrl(); }
+    
+    @com.fasterxml.jackson.annotation.JsonProperty("introduction")
+    public String getIntroduction() { return description; }
+
     private List<JobSimpleDTO> jobs; // danh sách job đơn giản của công ty
 }

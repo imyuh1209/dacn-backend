@@ -2,6 +2,9 @@ package vn.bxh.jobhunter.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,11 +29,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
 
-    public UserService(UserRepository userRepository,CompanyRepository companyRepository,RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository,CompanyRepository companyRepository,RoleRepository roleRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
         public ResCreateUserDTO HandleSaveUser(User user) {
@@ -171,6 +176,32 @@ public class UserService {
         if (user != null) {
             user.setPassword(encodedPassword);
             return this.userRepository.save(user);
+        }
+        return null;
+    }
+
+    public void initiateForgotPassword(String email) {
+        User user = this.userRepository.findByEmail(email);
+        if (user != null) {
+            // Generate random 6-digit OTP
+            String token = String.format("%06d", new java.util.Random().nextInt(999999));
+            user.setForgotPasswordToken(token);
+            user.setForgotPasswordTokenExpiry(Instant.now().plus(15, ChronoUnit.MINUTES));
+            this.userRepository.save(user);
+            this.emailService.sendForgotPasswordEmail(user.getEmail(), user.getName(), token);
+        }
+    }
+
+    public User verifyAndResetPassword(String token, String encodedPassword) {
+        Optional<User> userOptional = this.userRepository.findByForgotPasswordToken(token);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (user.getForgotPasswordTokenExpiry() != null && user.getForgotPasswordTokenExpiry().isAfter(Instant.now())) {
+                user.setPassword(encodedPassword);
+                user.setForgotPasswordToken(null);
+                user.setForgotPasswordTokenExpiry(null);
+                return this.userRepository.save(user);
+            }
         }
         return null;
     }
