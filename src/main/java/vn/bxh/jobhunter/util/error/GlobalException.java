@@ -26,7 +26,14 @@ public class GlobalException {
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setError(idException.getMessage());
-        res.setMessage("IdInvalidException");
+        
+        // Match Selenium expectations for authentication errors
+        if (idException instanceof BadCredentialsException || idException.getMessage().contains("Email không hợp lệ")) {
+            res.setMessage("sai email hoặc mật khẩu hoặc không hợp lệ!");
+        } else {
+            res.setMessage(idException.getMessage());
+        }
+        
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
     @ExceptionHandler(value = {FileInvalidException.class}
@@ -48,8 +55,10 @@ public class GlobalException {
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setError(ex.getBody().getDetail());
 
+        // Join multiple error messages if they exist, or just take the first one
         List<String> errors = fieldErrors.stream().map(f -> f.getDefaultMessage()).toList();
-        res.setMessage(errors.size() > 1 ? errors : errors.get(0));
+        String finalMessage = errors.size() > 1 ? String.join(", ", errors) : (errors.isEmpty() ? "Validation error" : errors.get(0));
+        res.setMessage(finalMessage);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }

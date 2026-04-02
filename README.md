@@ -1,6 +1,6 @@
-# JobHunter - Backend RESTful API (Spring Boot)
+# WorkGo - Backend RESTful API (Spring Boot)
 
-Hệ thống API cốt lõi cho dự án **JobHunter**, xử lý logic nghiệp vụ tuyển dụng, bảo mật và cơ sở dữ liệu.
+Hệ thống API cốt lõi cho dự án **WorkGo**, xử lý logic nghiệp vụ tuyển dụng, bảo mật và cơ sở dữ liệu.
 
 ---
 

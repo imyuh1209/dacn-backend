@@ -12,7 +12,13 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "jobs")
+@Table(name = "jobs", indexes = {
+    @Index(name = "idx_job_name", columnList = "name"),
+    @Index(name = "idx_job_location", columnList = "location"),
+    @Index(name = "idx_job_salary", columnList = "salary"),
+    @Index(name = "idx_job_salary_min", columnList = "salaryMin"),
+    @Index(name = "idx_job_salary_max", columnList = "salaryMax")
+})
 @Getter
 @Setter
 public class Job {

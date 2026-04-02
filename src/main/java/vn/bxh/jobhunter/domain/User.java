@@ -20,25 +20,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Name cannot be empty!")
+    @NotBlank(message = "Vui lòng nhập họ tên!")
     private String name;
 
-    @Email(message = "Invalid email format!")
-    @NotBlank(message = "Email cannot be empty!")
+    @Email(message = "Email không hợp lệ!")
+    @NotBlank(message = "Vui lòng nhập email!")
     private String email;
 
-    @NotBlank(message = "Password cannot be empty!")
-    @Size(min = 3, message = "Password must be at least 3 characters!")
+    @NotBlank(message = "Vui lòng nhập mật khẩu!")
+    @Size(min = 6, message = "Mật khẩu quá ngắn, tối thiểu 6 ký tự!")
     private String password;
 
-    @NotNull(message = "Age cannot be null!")
-    @Min(value = 16, message = "Age must be at least 16!")
+    @NotNull(message = "Vui lòng nhập tuổi!")
+    @Min(value = 16, message = "Tuổi tối thiểu là 16!")
     private Integer age;
 
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
-    @NotBlank(message = "Address cannot be empty!")
+    @NotBlank(message = "Vui lòng nhập địa chỉ!")
     private String address;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;

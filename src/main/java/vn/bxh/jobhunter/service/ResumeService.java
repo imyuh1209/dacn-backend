@@ -120,11 +120,26 @@ public class ResumeService {
         }
     }
 
-    public void DeleteResume(long id){
+    public void DeleteResume(long id) {
         Optional<Resume> resumeOptional = this.resumeRepository.findById(id);
-        if(resumeOptional.isPresent()){
+        if (resumeOptional.isPresent()) {
+            Resume resume = resumeOptional.get();
+
+            // Kiểm tra bảo mật: Chỉ cho phép người sở hữu hồ sơ hoặc Admin xóa
+            String email = SecurityUtil.getCurrentUserLogin().orElse("");
+            boolean isAdmin = SecurityUtil.isCurrentUserInRole("ROLE_ADMIN");
+
+            if (!isAdmin && (resume.getUser() == null || !resume.getUser().getEmail().equals(email))) {
+                throw new IdInvalidException("Bạn không có quyền xóa hồ sơ này!");
+            }
+
+            // Kiểm tra trạng thái: Chỉ cho phép hủy khi đang PENDING (đối với ứng viên)
+            if (!isAdmin && resume.getStatus() != vn.bxh.jobhunter.util.Constant.ResumeStateEnum.PENDING) {
+                throw new IdInvalidException("Chỉ có thể hủy hồ sơ đang ở trạng thái PENDING!");
+            }
+
             this.resumeRepository.deleteById(id);
-        }else{
+        } else {
             throw new IdInvalidException("Id is not valid!");
         }
     }

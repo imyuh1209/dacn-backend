@@ -9,14 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReqRegisterDTO {
-    @NotBlank(message = "Name cannot be empty!")
+    @NotBlank(message = "Vui lòng nhập họ tên!")
     private String name;
 
-    @Email(message = "Invalid email format!")
-    @NotBlank(message = "Email cannot be empty!")
+    @Email(message = "Email không hợp lệ!")
+    @NotBlank(message = "Vui lòng nhập email!")
     private String email;
 
-    @NotBlank(message = "Password cannot be empty!")
-    @Size(min = 3, message = "Password must be at least 3 characters!")
+    @NotBlank(message = "Vui lòng nhập mật khẩu!")
+    @Size(min = 6, message = "Mật khẩu quá ngắn, tối thiểu 6 ký tự!")
     private String password;
 }

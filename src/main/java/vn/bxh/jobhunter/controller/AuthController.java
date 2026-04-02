@@ -67,7 +67,7 @@ public class AuthController {
 
         boolean existsEmail = this.userService.existEmail(postManUser.getEmail());
         if (existsEmail == true) {
-            throw new IdInvalidException("Email " + postManUser.getEmail() + " already exists!");
+            throw new IdInvalidException("Email " + postManUser.getEmail() + " đã tồn tại!");
         }
         User user = new User();
         user.setName(postManUser.getName());
@@ -105,7 +105,7 @@ public class AuthController {
         // xác thực người dùng => cần viết hàm loadUserByUsername
         User userDB = this.userService.FindUserByEmail(reqLoginDTO.getUsername());
         if(userDB == null){
-            throw new IdInvalidException("Email is not valid!");
+            throw new IdInvalidException("Email không hợp lệ!");
         }
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);//set thong tin ngươi dùng
@@ -374,6 +374,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/logout")
+    @ApiMessage("Đăng xuất thành công!")
     public ResponseEntity<Void> logoutOut(){
         Authentication authentication = SecurityContextHolder.getContext()
                 .getAuthentication();

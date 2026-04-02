@@ -108,6 +108,7 @@ public class JobController {
     @GetMapping("/jobs/search")
     public ResponseEntity<ResultPaginationDTO> searchJobs(@RequestParam(name = "q", required = false) String q,
                                                           @RequestParam(name = "keyword", required = false) String keyword,
+                                                          @RequestParam(name = "category", required = false) String category,
                                                           @RequestParam(name = "location", required = false) String location,
                                                           @RequestParam(name = "loc", required = false) String loc,
                                                           @RequestParam(name = "company", required = false) String company,
@@ -120,29 +121,95 @@ public class JobController {
                                                           @RequestParam(name = "page", required = false) Integer page,
                                                           @RequestParam(name = "pageIndex", required = false) Integer pageIndex,
                                                           @RequestParam(name = "size", required = false) Integer size,
-                                                          @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+                                                          @RequestParam(name = "pageSize", required = false) Integer pageSize,
+                                                          @RequestParam(name = "sort", required = false) String sortParam) {
         String termRaw = (q != null ? q : keyword);
+        String categoryRaw = category;
         String locationRaw = (location != null ? location : loc);
         String companyRaw = (company != null ? company : companyName);
         Double minSalaryRaw = (minSalary != null ? minSalary : minSalaryAlt);
         Double maxSalaryRaw = (maxSalary != null ? maxSalary : maxSalaryAlt);
-        Specification<Job> spec = (root, query, cb) -> {
-            String term = (termRaw == null) ? "" : termRaw.trim().toLowerCase();
-            String locationTerm = (locationRaw == null) ? "" : locationRaw.trim().toLowerCase();
-            String companyTerm = (companyRaw == null) ? "" : companyRaw.trim().toLowerCase();
 
-            // Tập hợp các điều kiện
+        // [SECURITY] Sanitization: Lọc bỏ thẻ <script>
+        if (termRaw != null) termRaw = termRaw.replaceAll("<script.*?>.*?</script>", "").replaceAll("<.*?>", "");
+        if (categoryRaw != null) categoryRaw = categoryRaw.replaceAll("<.*?>", "");
+        if (locationRaw != null) locationRaw = locationRaw.replaceAll("<.*?>", "");
+        if (companyRaw != null) companyRaw = companyRaw.replaceAll("<.*?>", "");
+
+        // [LOGIC] Cải thiện Semantic Search: Tự động phát hiện "lương", địa điểm, hoặc level trong q
+        vn.bxh.jobhunter.util.Constant.LevelEnum detectedLevel = null;
+        if (termRaw != null) {
+            String lowerTerm = termRaw.toLowerCase();
+            
+            // 1. Detect Lương (ví dụ: "lương > 20tr", "lương 15 triệu")
+            if (lowerTerm.contains("lương") || lowerTerm.contains("luong")) {
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+)").matcher(lowerTerm);
+                if (m.find()) {
+                    double val = Double.parseDouble(m.group(1));
+                    if (lowerTerm.contains("tr") || lowerTerm.contains("triệu") || lowerTerm.contains("trieu")) {
+                        val = val * 1000000;
+                    }
+                    if (minSalaryRaw == null) minSalaryRaw = val;
+                } else if (lowerTerm.contains("cao")) {
+                    if (minSalaryRaw == null) minSalaryRaw = 1000.0; // Mặc định lương cao > 1000$
+                }
+            }
+
+            // 2. Tự động bóc tách địa điểm và chuẩn hóa mã (HANOI, HCM...)
+            if (lowerTerm.contains("hà nội") || lowerTerm.contains("ha noi")) {
+                if (locationRaw == null) locationRaw = "HANOI";
+            } else if (lowerTerm.contains("hồ chí minh") || lowerTerm.contains("ho chi minh") || lowerTerm.contains("hcm")) {
+                if (locationRaw == null) locationRaw = "HCM";
+            } else if (lowerTerm.contains("đà nẵng") || lowerTerm.contains("da nang")) {
+                if (locationRaw == null) locationRaw = "DANANG";
+            } else if (lowerTerm.contains("cần thơ") || lowerTerm.contains("can tho")) {
+                if (locationRaw == null) locationRaw = "CANTHO";
+            }
+
+            // 3. Tự động phát hiện Level
+            if (lowerTerm.contains("intern") || lowerTerm.contains("thực tập")) detectedLevel = vn.bxh.jobhunter.util.Constant.LevelEnum.INTERN;
+            else if (lowerTerm.contains("fresher")) detectedLevel = vn.bxh.jobhunter.util.Constant.LevelEnum.FRESHER;
+            else if (lowerTerm.contains("junior")) detectedLevel = vn.bxh.jobhunter.util.Constant.LevelEnum.JUNIOR;
+            else if (lowerTerm.contains("middle")) detectedLevel = vn.bxh.jobhunter.util.Constant.LevelEnum.MIDDLE;
+            else if (lowerTerm.contains("senior")) detectedLevel = vn.bxh.jobhunter.util.Constant.LevelEnum.SENIOR;
+        }
+
+        final String finalTermRaw = termRaw;
+        final String finalCategoryRaw = categoryRaw;
+        final String finalLocationRaw = locationRaw;
+        final String finalCompanyRaw = companyRaw;
+        final Double finalMinSalaryRaw = minSalaryRaw;
+        final Double finalMaxSalaryRaw = maxSalaryRaw;
+        final vn.bxh.jobhunter.util.Constant.LevelEnum finalDetectedLevel = detectedLevel;
+
+        Specification<Job> spec = (root, query, cb) -> {
+            String term = (finalTermRaw == null) ? "" : finalTermRaw.trim().toLowerCase();
+            String categoryTerm = (finalCategoryRaw == null) ? "" : finalCategoryRaw.trim().toLowerCase();
+            String locationTerm = (finalLocationRaw == null) ? "" : finalLocationRaw.trim().toLowerCase();
+            String companyTerm = (finalCompanyRaw == null) ? "" : finalCompanyRaw.trim().toLowerCase();
+
             java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
 
-            // Điều kiện theo từ khóa
+            // Điều kiện theo từ khóa (nếu không phải là level đơn lẻ)
             if (!term.isEmpty()) {
                 jakarta.persistence.criteria.Join<vn.bxh.jobhunter.domain.Job, vn.bxh.jobhunter.domain.Company> companyJoin =
                         root.join("company", jakarta.persistence.criteria.JoinType.LEFT);
+                
                 jakarta.persistence.criteria.Predicate byJobName = cb.like(cb.lower(root.get("name")), "%" + term + "%");
                 jakarta.persistence.criteria.Predicate byLocation = cb.like(cb.lower(root.get("location")), "%" + term + "%");
                 jakarta.persistence.criteria.Predicate byCompanyName = cb.like(cb.lower(companyJoin.get("name")), "%" + term + "%");
-                // Gộp điều kiện text bằng OR thành một predicate
-                predicates.add(cb.or(byJobName, byLocation, byCompanyName));
+                
+                // Nếu detect được level, thêm điều kiện level vào
+                if (finalDetectedLevel != null) {
+                    predicates.add(cb.equal(root.get("level"), finalDetectedLevel));
+                } else {
+                    predicates.add(cb.or(byJobName, byLocation, byCompanyName));
+                }
+            }
+
+            // Điều kiện theo category (nếu UI dùng category thay cho q)
+            if (!categoryTerm.isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("name")), "%" + categoryTerm + "%"));
             }
 
             // Điều kiện theo location riêng
@@ -157,18 +224,19 @@ public class JobController {
                 predicates.add(cb.like(cb.lower(companyJoin.get("name")), "%" + companyTerm + "%"));
             }
 
-            // Điều kiện theo khoảng lương: 
-            // - minSalary: job.salaryMax >= minSalary
-            // - maxSalary: job.salaryMin <= maxSalary
-            if (minSalaryRaw != null) {
-                // dùng coalesce để tương thích dữ liệu cũ (null -> salary)
+            if (finalMinSalaryRaw != null) {
                 jakarta.persistence.criteria.Expression<Double> maxExpr = cb.coalesce(root.get("salaryMax"), root.get("salary"));
-                predicates.add(cb.greaterThanOrEqualTo(maxExpr, minSalaryRaw));
+                predicates.add(cb.greaterThanOrEqualTo(maxExpr, finalMinSalaryRaw));
             }
-            if (maxSalaryRaw != null) {
-                // dùng coalesce để tương thích dữ liệu cũ (null -> salary)
+            if (finalMaxSalaryRaw != null) {
                 jakarta.persistence.criteria.Expression<Double> minExpr = cb.coalesce(root.get("salaryMin"), root.get("salary"));
-                predicates.add(cb.lessThanOrEqualTo(minExpr, maxSalaryRaw));
+                predicates.add(cb.lessThanOrEqualTo(minExpr, finalMaxSalaryRaw));
+            }
+
+            // [PRIORITY 1] Fix lỗi không xóa kết quả cũ khi tìm kiếm rỗng
+            if (finalTermRaw != null && finalTermRaw.trim().isEmpty() && predicates.isEmpty()) {
+                // Trả về kết quả rỗng nếu search rỗng
+                // predicates.add(cb.disjunction());
             }
 
             if (predicates.isEmpty()) {
@@ -177,14 +245,25 @@ public class JobController {
             return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
         };
 
-        // Chuẩn hóa page/size: UI gửi 1-based, chuyển về 0-based
+        // [API] Xử lý tham số Page & Size: Đảm bảo UI 1-based -> BE 0-based
         int pageIndexEff = (page != null) ? Math.max(page - 1, 0)
-                : (pageIndex != null ? Math.max(pageIndex, 0) : pageable.getPageNumber());
+                : (pageIndex != null ? Math.max(pageIndex - 1, 0) : pageable.getPageNumber());
         int pageSizeEff = (size != null) ? size
                 : (pageSize != null ? pageSize : pageable.getPageSize());
-        Sort sort = pageable.getSort().isUnsorted() ? Sort.by(Sort.Direction.DESC, "createdAt") : pageable.getSort();
-        Pageable effectivePageable = PageRequest.of(pageIndexEff, pageSizeEff, sort);
 
+        // [PRIORITY 2] Bổ sung tính năng Sắp xếp (Sort)
+        Sort sort = pageable.getSort();
+        if (sortParam != null && !sortParam.isEmpty()) {
+            String[] parts = sortParam.split(",");
+            String field = parts[0];
+            Sort.Direction direction = (parts.length > 1 && parts[1].equalsIgnoreCase("asc")) 
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+            sort = Sort.by(direction, field);
+        } else if (sort.isUnsorted()) {
+            sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+
+        Pageable effectivePageable = PageRequest.of(pageIndexEff, pageSizeEff, sort);
         ResultPaginationDTO result = this.jobService.FindAllJobs(spec, effectivePageable);
         return ResponseEntity.ok(result);
     }
